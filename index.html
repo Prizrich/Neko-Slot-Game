@@ -474,7 +474,7 @@
         <button id="jobBtn" style="background:#4f7a3b; color:white;">🍺 ПОДРАБОТАТЬ</button>
     </div>
 
-    <div class="result-banner" id="msg">🌲 Лес • Хардкор-режим активен!</div>
+    <div class="result-banner" id="msg">🌲 Лес • Работай сколько хочешь, опыт только в казино!</div>
 
     <div class="job-panel" id="jobPanel">
         <div class="job-header" id="jobHeader">🍺 ЖМИ ПОДРАБОТАТЬ</div>
@@ -522,8 +522,8 @@
             bgMusic.volume = currentMusicVol / 100;
         } catch(e) { console.log("Music load error"); }
         try {
-            levelUpSound = new Audio('sounds/level_up.ogg');
-            winSound = new Audio('sounds/win_slot.wav');
+            levelUpSound = new Audio('sounds/level_up.mp3');
+            winSound = new Audio('sounds/win_slot.mp3');
         } catch(e) { console.log("SFX load error"); }
     }
     
@@ -726,79 +726,79 @@
     const THEME_MULTIPLIERS = { forest: 1, cyberpunk: 2, space: 3, church: 5 };
     const THEME_RISK = { forest: 0, cyberpunk: 0.05, space: 0.1, church: 0.15 };
     
-    // ========== МНОГО РАНДОМНЫХ ЗАДАНИЙ ==========
+    // ========== МНОГО РАНДОМНЫХ ЗАДАНИЙ (БЕЗ ОПЫТА!) ==========
     const tasksData = {
         forest: [
             { text: "🍄 Бобёр-алкоголик просит добавки.", choices: [
-                { txt: "🍺 Налить ещё", suc:12, sucExp:6, fail:-5, failExp:2, chance:0.7, char:"beaver", danger:false, jailChance:0 },
-                { txt: "🍵 Заменить на чай", suc:8, sucExp:4, fail:-3, failExp:1, chance:0.8, char:"oracle", danger:false, jailChance:0 },
-                { txt: "🚫 Послать лесом", suc:20, sucExp:10, fail:-15, failExp:3, chance:0.4, char:"goblin", danger:true, jailChance:0.15 }
+                { txt: "🍺 Налить ещё", suc:12, fail:-5, chance:0.7, char:"beaver", danger:false, jailChance:0 },
+                { txt: "🍵 Заменить на чай", suc:8, fail:-3, chance:0.8, char:"oracle", danger:false, jailChance:0 },
+                { txt: "🚫 Послать лесом", suc:20, fail:-15, chance:0.4, char:"goblin", danger:true, jailChance:0.15 }
             ] },
             { text: "🦉 Сова-психолог жалуется на жизнь.", choices: [
-                { txt: "🎧 Сделать вид, что слушаешь", suc:8, sucExp:4, fail:-3, failExp:1, chance:0.85, char:"angel", danger:false, jailChance:0 },
-                { txt: "🍺 Напоить сову", suc:14, sucExp:7, fail:-8, failExp:2, chance:0.6, char:"beaver", danger:false, jailChance:0 },
-                { txt: "🦉 Отправить к психотерапевту", suc:6, sucExp:3, fail:-10, failExp:2, chance:0.5, char:"comedian", danger:true, jailChance:0.1 }
+                { txt: "🎧 Сделать вид, что слушаешь", suc:8, fail:-3, chance:0.85, char:"angel", danger:false, jailChance:0 },
+                { txt: "🍺 Напоить сову", suc:14, fail:-8, chance:0.6, char:"beaver", danger:false, jailChance:0 },
+                { txt: "🦉 Отправить к психотерапевту", suc:6, fail:-10, chance:0.5, char:"comedian", danger:true, jailChance:0.1 }
             ] },
             { text: "🐺 Волк предлагает сыграть в кости.", choices: [
-                { txt: "🎲 Согласиться", suc:18, sucExp:9, fail:-12, failExp:3, chance:0.55, char:"demon", danger:true, jailChance:0.2 },
-                { txt: "🍖 Угостить мясом", suc:10, sucExp:5, fail:-4, failExp:2, chance:0.75, char:"bartender", danger:false, jailChance:0 },
-                { txt: "🏃 Убежать", suc:6, sucExp:3, fail:-2, failExp:1, chance:0.85, char:"oracle", danger:false, jailChance:0 }
+                { txt: "🎲 Согласиться", suc:18, fail:-12, chance:0.55, char:"demon", danger:true, jailChance:0.2 },
+                { txt: "🍖 Угостить мясом", suc:10, fail:-4, chance:0.75, char:"bartender", danger:false, jailChance:0 },
+                { txt: "🏃 Убежать", suc:6, fail:-2, chance:0.85, char:"oracle", danger:false, jailChance:0 }
             ] },
             { text: "🍄 Гном потерял кольцо в пивной кружке.", choices: [
-                { txt: "🍺 Выпить и найти кольцо", suc:16, sucExp:8, fail:-10, failExp:3, chance:0.6, char:"goblin", danger:true, jailChance:0.1 },
-                { txt: "🔦 Посветить фонариком", suc:12, sucExp:6, fail:-5, failExp:2, chance:0.75, char:"mechanic", danger:false, jailChance:0 },
-                { txt: "💰 Предложить купить новое", suc:8, sucExp:4, fail:-3, failExp:1, chance:0.8, char:"angel", danger:false, jailChance:0 }
+                { txt: "🍺 Выпить и найти кольцо", suc:16, fail:-10, chance:0.6, char:"goblin", danger:true, jailChance:0.1 },
+                { txt: "🔦 Посветить фонариком", suc:12, fail:-5, chance:0.75, char:"mechanic", danger:false, jailChance:0 },
+                { txt: "💰 Предложить купить новое", suc:8, fail:-3, chance:0.8, char:"angel", danger:false, jailChance:0 }
             ] }
         ],
         cyberpunk: [
             { text: "🤖 Кибер-собака грызет провода.", choices: [
-                { txt: "🔧 Перепрограммировать", suc:20, sucExp:10, fail:-15, failExp:3, chance:0.55, char:"mechanic", danger:false, jailChance:0 },
-                { txt: "🍖 Кинуть мясо", suc:14, sucExp:7, fail:-8, failExp:2, chance:0.7, char:"comedian", danger:false, jailChance:0 },
-                { txt: "💥 Ударить током", suc:25, sucExp:12, fail:-22, failExp:4, chance:0.4, char:"demon", danger:true, jailChance:0.2 }
+                { txt: "🔧 Перепрограммировать", suc:20, fail:-15, chance:0.55, char:"mechanic", danger:false, jailChance:0 },
+                { txt: "🍖 Кинуть мясо", suc:14, fail:-8, chance:0.7, char:"comedian", danger:false, jailChance:0 },
+                { txt: "💥 Ударить током", suc:25, fail:-22, chance:0.4, char:"demon", danger:true, jailChance:0.2 }
             ] },
             { text: "👾 Хакер взломал слоты.", choices: [
-                { txt: "💻 Устроить кибервойну", suc:22, sucExp:11, fail:-18, failExp:3, chance:0.5, char:"goblin", danger:true, jailChance:0.25 },
-                { txt: "🍺 Отключить всё и выпить", suc:12, sucExp:6, fail:-8, failExp:2, chance:0.65, char:"bartender", danger:false, jailChance:0 },
-                { txt: "🤝 Предложить работу", suc:18, sucExp:9, fail:-10, failExp:2, chance:0.6, char:"oracle", danger:false, jailChance:0 }
+                { txt: "💻 Устроить кибервойну", suc:22, fail:-18, chance:0.5, char:"goblin", danger:true, jailChance:0.25 },
+                { txt: "🍺 Отключить всё и выпить", suc:12, fail:-8, chance:0.65, char:"bartender", danger:false, jailChance:0 },
+                { txt: "🤝 Предложить работу", suc:18, fail:-10, chance:0.6, char:"oracle", danger:false, jailChance:0 }
             ] },
             { text: "🔌 У тебя украли кибер-почку.", choices: [
-                { txt: "🩻 Купить новую на чёрном рынке", suc:22, sucExp:10, fail:-20, failExp:3, chance:0.5, char:"demon", danger:true, jailChance:0.3 },
-                { txt: "👮 Вызвать полицию", suc:10, sucExp:5, fail:-8, failExp:2, chance:0.7, char:"angel", danger:false, jailChance:0 },
-                { txt: "🍺 Напиться и забыться", suc:8, sucExp:4, fail:-4, failExp:1, chance:0.8, char:"bartender", danger:false, jailChance:0 }
+                { txt: "🩻 Купить новую на чёрном рынке", suc:22, fail:-20, chance:0.5, char:"demon", danger:true, jailChance:0.3 },
+                { txt: "👮 Вызвать полицию", suc:10, fail:-8, chance:0.7, char:"angel", danger:false, jailChance:0 },
+                { txt: "🍺 Напиться и забыться", suc:8, fail:-4, chance:0.8, char:"bartender", danger:false, jailChance:0 }
             ] }
         ],
         space: [
             { text: "🚀 Пришелец не понимает земных денег.", choices: [
-                { txt: "🛸 Договориться жестами", suc:16, sucExp:8, fail:-10, failExp:3, chance:0.65, char:"oracle", danger:false, jailChance:0 },
-                { txt: "📦 Дать коробку 'сюрприз'", suc:22, sucExp:11, fail:-18, failExp:4, chance:0.45, char:"demon", danger:true, jailChance:0.25 },
-                { txt: "🍕 Угостить пиццей", suc:12, sucExp:6, fail:-6, failExp:2, chance:0.7, char:"comedian", danger:false, jailChance:0 }
+                { txt: "🛸 Договориться жестами", suc:16, fail:-10, chance:0.65, char:"oracle", danger:false, jailChance:0 },
+                { txt: "📦 Дать коробку 'сюрприз'", suc:22, fail:-18, chance:0.45, char:"demon", danger:true, jailChance:0.25 },
+                { txt: "🍕 Угостить пиццей", suc:12, fail:-6, chance:0.7, char:"comedian", danger:false, jailChance:0 }
             ] },
             { text: "🧑‍🚀 Космонавт потерял скафандр.", choices: [
-                { txt: "🎯 Надеть мусорный пакет", suc:18, sucExp:9, fail:-12, failExp:3, chance:0.55, char:"goblin", danger:true, jailChance:0.2 },
-                { txt: "🛠 Починить из подручных средств", suc:15, sucExp:7, fail:-8, failExp:2, chance:0.7, char:"mechanic", danger:false, jailChance:0 },
-                { txt: "👽 Сдать его пришельцам", suc:25, sucExp:12, fail:-20, failExp:3, chance:0.4, char:"demon", danger:true, jailChance:0.35 }
+                { txt: "🎯 Надеть мусорный пакет", suc:18, fail:-12, chance:0.55, char:"goblin", danger:true, jailChance:0.2 },
+                { txt: "🛠 Починить из подручных средств", suc:15, fail:-8, chance:0.7, char:"mechanic", danger:false, jailChance:0 },
+                { txt: "👽 Сдать его пришельцам", suc:25, fail:-20, chance:0.4, char:"demon", danger:true, jailChance:0.35 }
             ] },
             { text: "🛸 Инопланетянин хочет забрать твою душу.", choices: [
-                { txt: "💸 Продать душу за 1000$", suc:20, sucExp:9, fail:-8, failExp:2, chance:0.6, char:"demon", danger:false, jailChance:0 },
-                { txt: "🙏 Отмазаться верой", suc:10, sucExp:5, fail:-4, failExp:2, chance:0.8, char:"angel", danger:false, jailChance:0 },
-                { txt: "🍺 Угостить земным алкоголем", suc:14, sucExp:7, fail:-6, failExp:2, chance:0.7, char:"bartender", danger:false, jailChance:0 }
+                { txt: "💸 Продать душу за 1000$", suc:20, fail:-8, chance:0.6, char:"demon", danger:false, jailChance:0 },
+                { txt: "🙏 Отмазаться верой", suc:10, fail:-4, chance:0.8, char:"angel", danger:false, jailChance:0 },
+                { txt: "🍺 Угостить земным алкоголем", suc:14, fail:-6, chance:0.7, char:"bartender", danger:false, jailChance:0 }
             ] }
         ],
         church: [
             { text: "⛪ Священник тайно играет в слоты.", choices: [
-                { txt: "🙏 Сделать вид, что не заметил", suc:10, sucExp:5, fail:-5, failExp:2, chance:0.8, char:"angel", danger:false, jailChance:0 },
-                { txt: "🍷 Шантажировать", suc:18, sucExp:9, fail:-12, failExp:3, chance:0.55, char:"bartender", danger:false, jailChance:0.3 },
-                { txt: "🔥 Устроить экзорцизм", suc:25, sucExp:12, fail:-20, failExp:3, chance:0.45, char:"demon", danger:true, jailChance:0.35 }
+                { txt: "🙏 Сделать вид, что не заметил", suc:10, fail:-5, chance:0.8, char:"angel", danger:false, jailChance:0 },
+                { txt: "🍷 Шантажировать", suc:18, fail:-12, chance:0.55, char:"bartender", danger:false, jailChance:0.3 },
+                { txt: "🔥 Устроить экзорцизм", suc:25, fail:-20, chance:0.45, char:"demon", danger:true, jailChance:0.35 }
             ] },
             { text: "🕯️ В церкви закончились свечи.", choices: [
-                { txt: "🔦 Включить фонарики", suc:14, sucExp:7, fail:-8, failExp:2, chance:0.7, char:"mechanic", danger:false, jailChance:0 },
-                { txt: "🪵 Развести костёр из икон", suc:20, sucExp:10, fail:-15, failExp:3, chance:0.5, char:"goblin", danger:true, jailChance:0.25 },
-                { txt: "🙏 Молиться в темноте", suc:8, sucExp:4, fail:-4, failExp:2, chance:0.8, char:"oracle", danger:false, jailChance:0 }
+                { txt: "🔦 Включить фонарики", suc:14, fail:-8, chance:0.7, char:"mechanic", danger:false, jailChance:0 },
+                { txt: "🪵 Развести костёр из икон", suc:20, fail:-15, chance:0.5, char:"goblin", danger:true, jailChance:0.25 },
+                { txt: "🙏 Молиться в темноте", suc:8, fail:-4, chance:0.8, char:"oracle", danger:false, jailChance:0 }
             ] },
             { text: "🍷 Демон требует пожертвование.", choices: [
-                { txt: "🤝 Откупиться 100$", suc:12, sucExp:6, fail:-8, failExp:2, chance:0.7, char:"demon", danger:false, jailChance:0 },
-                { txt: "🔥 Вызвать экзорциста", suc:18, sucExp:9, fail:-15, failExp:3, chance:0.55, char:"angel", danger:false, jailChance:0 },
-                { txt: "🍺 Сказать 'у нас всё для Бога'", suc:8, sucExp:4, fail:-10, failExp:2, chance:0.6, char:"comedian", danger:true, jailChance:0.15 }
+                { txt: "🤝 Откупиться 100$", suc:12, fail:-8, chance:0.7, char:"demon", danger:false, jailChance:0 },
+                { txt: "🔥 Вызвать экзорциста", suc:18, fail:-15, chance:0.55, char:"angel", danger:false, jailChance:0 },
+                { txt: "🍺 Сказать 'у нас всё для Бога'", suc:8, fail:-10, chance:0.6, char:"comedian", danger:true, jailChance:0.15 }
             ] }
         ]
     };
@@ -934,12 +934,13 @@
         if (player.level >= 20 && !player.defeatedBoss) startBossFight();
     }
     
+    // Опыт ТОЛЬКО за казино! (и увеличенный)
     function addExp(amount) {
         if (player.level >= 20) return;
         let multiplier = getCurrentMultiplier();
         if (player.smallWins) multiplier = Math.max(0.5, multiplier - 0.3);
-        amount = Math.floor(amount * multiplier);
-        player.exp += amount;
+        let finalAmount = Math.floor(amount * multiplier);
+        player.exp += finalAmount;
         let leveled = false;
         while (player.level < 20 && player.exp >= EXP_FOR_LEVEL[player.level+1]) {
             player.level++;
@@ -963,20 +964,13 @@
     }
     function hideJobBackground() { jobBg.classList.remove("active"); setTimeout(() => { jobBg.className = "job-background bar"; }, 500); }
     
+    // РАБОТА БЕЗ ОГРАНИЧЕНИЙ (можно работать всегда, опыт не даёт)
     function startRandomJob() {
         if (isInJail) {
             document.getElementById("msg").innerHTML = "🔒 Ты в тюрьме! Заплати залог, чтобы работать! 🔒";
             return false;
         }
-        const currentBet = getCurrentBet();
-        if (player.money >= currentBet) {
-            document.getElementById("msg").classList.add("result-lose");
-            document.getElementById("msg").innerText = "⚠️ У тебя есть деньги! Проиграйся, чтобы работать ⚠️";
-            setTimeout(() => document.getElementById("msg").classList.remove("result-lose"), 2000);
-            return false;
-        }
         const tasksSet = getTasksForCurrentTheme();
-        // РАНДОМНО ВЫБИРАЕМ ЗАДАНИЕ
         const randomIndex = Math.floor(Math.random() * tasksSet.length);
         currentTask = tasksSet[randomIndex];
         currentJob = player.currentTheme;
@@ -1010,9 +1004,7 @@
         let actualChance = Math.max(0.1, Math.min(0.95, choice.chance - risk - extraRisk));
         const isSuccess = Math.random() < actualChance;
         let reward = isSuccess ? choice.suc : choice.fail;
-        let expGain = isSuccess ? choice.sucExp : choice.failExp;
         reward = Math.floor(reward * multiplier);
-        expGain = Math.floor(expGain * multiplier);
         const character = characters[choice.char];
         
         let jailChance = choice.jailChance || 0;
@@ -1021,16 +1013,14 @@
         
         if (isSuccess) {
             player.money += reward;
-            addExp(expGain);
             jobCount++;
             checkAchievements();
             document.getElementById("msg").classList.add("result-win");
-            document.getElementById("msg").innerHTML = `${choice.txt} — УСПЕХ! +${reward}$, +${expGain} XP ${character ? character.emoji : ""}`;
+            document.getElementById("msg").innerHTML = `${choice.txt} — УСПЕХ! +${reward}$ ${character ? character.emoji : ""}`;
         } else {
             player.money = Math.max(0, player.money + reward);
-            addExp(expGain);
             document.getElementById("msg").classList.add("result-lose");
-            document.getElementById("msg").innerHTML = `${choice.txt} — ПРОВАЛ! ${Math.abs(reward)}$, +${expGain} XP ${character ? character.name : ""}`;
+            document.getElementById("msg").innerHTML = `${choice.txt} — ПРОВАЛ! ${Math.abs(reward)}$ ${character ? character.name : ""}`;
         }
         
         if (goToJail) sendToJail("За свои \"творческие\" методы работы ");
@@ -1090,30 +1080,30 @@
         let multiplier = getCurrentMultiplier();
         if (player.smallWins) multiplier = Math.max(0.5, multiplier - 0.3);
         const isWin = row[0]===row[1] && row[1]===row[2];
-        let win = 0, expG = 3;
+        let win = 0, expG = 0;
         spinCount++;
         if (isWin) {
             window.playSFX('win_slot');
             if (row[0] === STAR) { 
                 win = (CURRENT_BET * 6 + 100) * multiplier; 
-                expG = 35 * multiplier; 
+                expG = 70 * multiplier;  // УВЕЛИЧЕННЫЙ ОПЫТ (было 35)
                 legendCount++;
                 document.getElementById("msg").classList.add("result-legend"); 
-                document.getElementById("msg").innerHTML = `🌟🌟🌟 ЛЕГЕНДАРКА! +${win}$ 🌟🌟🌟`; 
+                document.getElementById("msg").innerHTML = `🌟🌟🌟 ЛЕГЕНДАРКА! +${win}$, +${expG} XP 🌟🌟🌟`; 
                 setTimeout(() => document.getElementById("msg").classList.remove("result-legend"), 2800); 
             } else { 
                 const multi = { "🍒":2,"🍋":2,"🍊":2,"🍉":2.5,"🍎":3,"🍓":2.5,"🍑":2 }[row[0]] || 2; 
                 win = Math.floor(CURRENT_BET * multi * multiplier); 
-                expG = 14 * multiplier; 
+                expG = 25 * multiplier;  // УВЕЛИЧЕННЫЙ ОПЫТ (было 14)
                 document.getElementById("msg").classList.add("result-win"); 
-                document.getElementById("msg").innerHTML = `🎉 ПОБЕДА! +${win}$ 🎉`; 
+                document.getElementById("msg").innerHTML = `🎉 ПОБЕДА! +${win}$, +${expG} XP 🎉`; 
                 setTimeout(() => document.getElementById("msg").classList.remove("result-win"), 2000); 
             }
             player.money += win;
         } else { 
-            expG = 5 * multiplier; 
+            expG = 8 * multiplier;  // Опыт за проигрыш тоже увеличен (было 5)
             document.getElementById("msg").classList.add("result-lose"); 
-            document.getElementById("msg").innerHTML = `💔 ПРОИГРЫШ! -${CURRENT_BET}$ 💔`; 
+            document.getElementById("msg").innerHTML = `💔 ПРОИГРЫШ! -${CURRENT_BET}$, +${expG} XP 💔`; 
             setTimeout(() => document.getElementById("msg").classList.remove("result-lose"), 1500); 
         }
         addExp(expG);
@@ -1381,11 +1371,11 @@
         modalText.innerHTML = `<p>🐱 <strong>НЕКО-СЛОТ</strong> 🎰</p>
         <p>💰 Старт: 200$ | Ставка растёт с уровнем (20→40→60→80$)</p>
         <p>⚠️ <strong>НОВОВВЕДЕНИЯ:</strong></p>
+        <p>• Работать можно БЕЗ ОГРАНИЧЕНИЙ (опыт даётся только в казино!)</p>
         <p>• После победы над боссом откроются МОДИФИКАТОРЫ</p>
         <p>• За РИСКОВЫЕ действия можно попасть в ТЮРЬМУ (залог 120$)</p>
         <p>• Для вызова босса нужно 10000$</p>
         <p>🎭 На уровнях <strong>2-18</strong> — сюжетные события!</p>
-        <p>🔊 Полноценное звуковое сопровождение!</p>
         <p>🔥 Удачи, авантюрист!</p>`;
         modalChoices.innerHTML = `<button class="choice-btn" id="prologStartBtn">🎰 ИГРАТЬ!</button>`;
         modal.style.display = "flex";
@@ -1448,8 +1438,13 @@
             playMusic();
         } else {
             canSave = false;
+            // Принудительно применяем тему Лес сразу, чтобы фон не был белым
+            document.body.className = "theme-forest";
+            const container = document.getElementById("bgEffects");
+            if (container) {
+                container.innerHTML = effects.forest();
+            }
             for(let i=0;i<3;i++) document.getElementById(`s${i}`).innerText = FRUITS[Math.floor(Math.random()*FRUITS.length)];
-            applyTheme("forest");
             showPrologue();
         }
         
