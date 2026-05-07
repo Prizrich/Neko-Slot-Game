@@ -3,13 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>НЕКО СЛОТ | ЗАПРЕТ ВОЗВРАТА | ХАРДКОР</title>
+    <title>НЕКО СЛОТ | ХАРДКОР-РЕЖИМ</title>
     <style>
-        * {
-            user-select: none;
-            box-sizing: border-box;
-        }
-
+        * { user-select: none; box-sizing: border-box; }
         body {
             min-height: 100vh;
             display: flex;
@@ -22,23 +18,12 @@
             position: relative;
             overflow-x: hidden;
         }
+        body.theme-forest { background: linear-gradient(135deg, #0a2f1a, #1a4a2a); }
+        body.theme-space { background: radial-gradient(ellipse at center, #0a0a2a, #050510); }
+        body.theme-cyberpunk { background: linear-gradient(135deg, #0a0a1a, #1a0a2a); }
+        body.theme-church { background: linear-gradient(135deg, #2a1a3a, #1a0a2a); }
 
-        body.theme-forest {
-            background: linear-gradient(135deg, #0a2f1a, #1a4a2a);
-        }
-
-        body.theme-space {
-            background: radial-gradient(ellipse at center, #0a0a2a, #050510);
-        }
-
-        body.theme-cyberpunk {
-            background: linear-gradient(135deg, #0a0a1a, #1a0a2a);
-        }
-
-        body.theme-church {
-            background: linear-gradient(135deg, #2a1a3a, #1a0a2a);
-        }
-
+        /* СТАРТОВОЕ МЕНЮ */
         .main-menu {
             position: fixed;
             top: 0;
@@ -51,18 +36,16 @@
             align-items: center;
             z-index: 1000;
         }
-
         .menu-content {
             text-align: center;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0,0,0,0.7);
             backdrop-filter: blur(20px);
             border-radius: 70px;
             padding: 45px 35px;
-            border: 2px solid rgba(255, 204, 102, 0.5);
+            border: 2px solid rgba(255,204,102,0.5);
             max-width: 500px;
             width: 90%;
         }
-
         .menu-title {
             font-size: 2.8rem;
             font-weight: 900;
@@ -72,7 +55,6 @@
             color: transparent;
             margin-bottom: 35px;
         }
-
         .menu-btn {
             background: linear-gradient(135deg, #ffaa44, #ff8833);
             border: none;
@@ -87,68 +69,42 @@
             box-shadow: 0 6px 0 #7a4a1a;
             color: #2c1a0a;
         }
-
-        .menu-btn:active {
-            transform: translateY(3px);
-            box-shadow: 0 3px 0 #7a4a1a;
-        }
-
+        .menu-btn:active { transform: translateY(3px); box-shadow: 0 3px 0 #7a4a1a; }
+        
         .modifiers-selector {
             margin-top: 20px;
             padding: 15px;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0,0,0,0.5);
             border-radius: 40px;
             display: none;
         }
-
-        .modifiers-selector h4 {
-            color: #ffcc66;
-            margin: 0 0 10px 0;
-        }
-
+        .modifiers-selector h4 { color: #ffcc66; margin: 0 0 10px 0; }
         .modifier-check {
             display: flex;
             align-items: center;
             justify-content: space-between;
             margin: 8px 0;
             padding: 8px 12px;
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(0,0,0,0.4);
             border-radius: 30px;
             cursor: pointer;
         }
-
-        .modifier-check input {
-            margin-right: 10px;
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-        }
-
-        .modifier-check label {
-            flex: 1;
-            cursor: pointer;
-            text-align: left;
-        }
-
-        .apply-modifiers-btn {
-            background: #4f7a3b;
-            margin-top: 15px;
-            width: 100%;
-        }
-
+        .modifier-check input { margin-right: 10px; width: 18px; height: 18px; cursor: pointer; }
+        .modifier-check label { flex: 1; cursor: pointer; text-align: left; }
+        .apply-modifiers-btn { background: #4f7a3b; margin-top: 15px; width: 100%; }
+        
         .achievements-list, .settings-panel {
             display: none;
             margin-top: 25px;
             max-height: 400px;
             overflow-y: auto;
-            background: rgba(10, 10, 20, 0.85);
+            background: rgba(10,10,20,0.85);
             border-radius: 35px;
             padding: 20px;
             border: 1px solid #ffcc66;
         }
-
         .achievement-item {
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0,0,0,0.6);
             margin: 10px 0;
             padding: 12px 15px;
             border-radius: 25px;
@@ -158,29 +114,15 @@
             flex-wrap: wrap;
             border-left: 4px solid #ffcc66;
         }
-
-        .achievement-item.unlocked {
-            background: rgba(30, 107, 30, 0.7);
-            border-left: 4px solid gold;
-        }
-
-        .achievement-item .ach-name {
-            font-weight: bold;
-            color: #ffefc0;
-        }
-
-        .achievement-item .ach-desc {
-            width: 100%;
-            font-size: 0.7rem;
-            color: #ccbb88;
-        }
-
+        .achievement-item.unlocked { background: rgba(30,107,30,0.7); border-left: 4px solid gold; }
+        .achievement-item .ach-name { font-weight: bold; color: #ffefc0; }
+        .achievement-item .ach-desc { width: 100%; font-size: 0.7rem; color: #ccbb88; }
+        
         .settings-panel {
             display: none;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0,0,0,0.6);
             padding: 20px;
         }
-
         .settings-panel label {
             display: flex;
             justify-content: space-between;
@@ -188,18 +130,11 @@
             margin: 12px 0;
             color: #ffefc0;
         }
-
-        .settings-panel input {
-            width: 150px;
-            cursor: pointer;
-        }
-
-        .game-container {
-            display: none;
-        }
-
+        .settings-panel input { width: 150px; cursor: pointer; }
+        .game-container { display: none; }
+        
         .modifiers-panel {
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0,0,0,0.6);
             border-radius: 20px;
             padding: 8px 12px;
             margin-bottom: 15px;
@@ -207,7 +142,6 @@
             font-size: 0.75rem;
             border: 1px solid #ffaa44;
         }
-
         .modifier-badge {
             display: inline-block;
             background: #aa4433;
@@ -218,7 +152,7 @@
             font-size: 0.7rem;
             font-weight: bold;
         }
-
+        
         .job-background {
             position: fixed;
             top: 0;
@@ -229,25 +163,10 @@
             z-index: 1;
             transition: opacity 0.5s ease;
         }
-
-        .job-background.bar {
-            background: radial-gradient(ellipse at 30% 40%, #3a1a0a, #1a0a00);
-            opacity: 0;
-        }
-
-        .job-background.repair {
-            background: repeating-linear-gradient(45deg, #1a2a1a, #1a2a1a 20px, #0a1a0a 20px, #0a1a0a 40px);
-            opacity: 0;
-        }
-
-        .job-background.standup {
-            background: radial-gradient(circle at 50% 30%, #2a1a3a, #0a0a1a);
-            opacity: 0;
-        }
-
-        .job-background.active {
-            opacity: 0.4;
-        }
+        .job-background.bar { background: radial-gradient(ellipse at 30% 40%, #3a1a0a, #1a0a00); opacity: 0; }
+        .job-background.repair { background: repeating-linear-gradient(45deg, #1a2a1a, #1a2a1a 20px, #0a1a0a 20px, #0a1a0a 40px); opacity: 0; }
+        .job-background.standup { background: radial-gradient(circle at 50% 30%, #2a1a3a, #0a0a1a); opacity: 0; }
+        .job-background.active { opacity: 0.4; }
 
         .bg-effects {
             position: fixed;
@@ -258,118 +177,27 @@
             pointer-events: none;
             z-index: 0;
         }
-
-        .tree {
-            position: absolute;
-            bottom: 0;
-            font-size: 3rem;
-            opacity: 0.12;
-            animation: sway 6s ease-in-out infinite;
+        .tree { position: absolute; bottom: 0; font-size: 3rem; opacity: 0.12; animation: sway 6s ease-in-out infinite; }
+        .leaf { position: absolute; font-size: 1.2rem; opacity: 0.1; animation: fall 10s linear infinite; }
+        @keyframes sway { 0%,100%{ transform: translateX(0); } 50%{ transform: translateX(-8px); } }
+        @keyframes fall { 0%{ transform: translateY(-20vh) rotate(0deg); opacity: 0; } 10%{ opacity: 0.15; } 90%{ opacity: 0.15; } 100%{ transform: translateY(120vh) rotate(360deg); opacity: 0; } }
+        .star { position: absolute; background: white; border-radius: 50%; animation: twinkle 2s ease-in-out infinite; }
+        .shooting { position: absolute; width: 80px; height: 2px; background: linear-gradient(90deg, white, transparent); animation: shoot 6s linear infinite; opacity: 0; }
+        .neon-line { position: absolute; width: 100%; height: 1px; background: linear-gradient(90deg, transparent, #0ff, #f0f, transparent); animation: moveLine 4s linear infinite; opacity: 0.3; }
+        .glitch { position: absolute; font-family: monospace; font-size: 1.5rem; opacity: 0.15; animation: glitchAnim 2s infinite; }
+        @keyframes glitchAnim { 
+            0%,100%{ text-shadow: 2px 0 #f0f, -2px 0 #0ff; transform: translateX(0); } 
+            25%{ transform: translateX(-2px); }
+            50%{ text-shadow: -2px 0 #f0f, 2px 0 #0ff; transform: translateX(3px); }
+            75%{ transform: translateX(-1px); }
         }
-
-        .leaf {
-            position: absolute;
-            font-size: 1.2rem;
-            opacity: 0.1;
-            animation: fall 10s linear infinite;
-        }
-
-        @keyframes sway {
-            0%, 100% {
-                transform: translateX(0);
-            }
-            50% {
-                transform: translateX(-8px);
-            }
-        }
-
-        @keyframes fall {
-            0% {
-                transform: translateY(-20vh) rotate(0deg);
-                opacity: 0;
-            }
-            10% {
-                opacity: 0.15;
-            }
-            90% {
-                opacity: 0.15;
-            }
-            100% {
-                transform: translateY(120vh) rotate(360deg);
-                opacity: 0;
-            }
-        }
-
-        .star {
-            position: absolute;
-            background: white;
-            border-radius: 50%;
-            animation: twinkle 2s ease-in-out infinite;
-        }
-
-        .shooting {
-            position: absolute;
-            width: 80px;
-            height: 2px;
-            background: linear-gradient(90deg, white, transparent);
-            animation: shoot 6s linear infinite;
-            opacity: 0;
-        }
-
-        .neon-line {
-            position: absolute;
-            width: 100%;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, #0ff, #f0f, transparent);
-            animation: moveLine 4s linear infinite;
-            opacity: 0.3;
-        }
-
-        .glitch {
-            position: absolute;
-            font-family: monospace;
-            font-size: 1.5rem;
-            opacity: 0.15;
-            animation: glitchAnim 2s infinite;
-        }
-
-        @keyframes glitchAnim {
-            0%, 100% {
-                text-shadow: 2px 0 #f0f, -2px 0 #0ff;
-                transform: translateX(0);
-            }
-            25% {
-                transform: translateX(-2px);
-            }
-            50% {
-                text-shadow: -2px 0 #f0f, 2px 0 #0ff;
-                transform: translateX(3px);
-            }
-            75% {
-                transform: translateX(-1px);
-            }
-        }
-
-        .stained {
-            position: absolute;
-            border-radius: 50%;
-            background: radial-gradient(circle, #f36, #f93, #ff3, #3f6, #36f);
-            opacity: 0.08;
-            animation: glow 5s ease-in-out infinite;
-        }
-
-        .cross {
-            position: absolute;
-            font-size: 3rem;
-            opacity: 0.08;
-            animation: crossGlow 4s infinite;
-            color: #d4af37;
-        }
+        .stained { position: absolute; border-radius: 50%; background: radial-gradient(circle, #f36, #f93, #ff3, #3f6, #36f); opacity: 0.08; animation: glow 5s ease-in-out infinite; }
+        .cross { position: absolute; font-size: 3rem; opacity: 0.08; animation: crossGlow 4s infinite; color: #d4af37; }
 
         .game-wrapper {
             max-width: 650px;
             width: 100%;
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(0,0,0,0.85);
             backdrop-filter: blur(12px);
             border-radius: 50px;
             padding: 20px;
@@ -378,14 +206,8 @@
             z-index: 20;
             color: white;
         }
-
-        .header-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
+        
+        .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .reset-btn, .exit-btn {
             background: #aa4433;
             color: white;
@@ -397,28 +219,12 @@
             font-weight: bold;
             box-shadow: 0 3px 0 #6a2a1a;
         }
-
-        .exit-btn {
-            background: #3366aa;
-            box-shadow: 0 3px 0 #1a4477;
-            margin-right: 8px;
-        }
-
-        .reset-btn:active, .exit-btn:active {
-            transform: translateY(2px);
-            box-shadow: 0 1px 0 #6a2a1a;
-        }
-
-        .theme-bar {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
+        .exit-btn { background: #3366aa; box-shadow: 0 3px 0 #1a4477; margin-right: 8px; }
+        .reset-btn:active, .exit-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #6a2a1a; }
+        
+        .theme-bar { display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
         .theme-btn {
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0,0,0,0.6);
             border: 1px solid #ffcc66;
             padding: 5px 14px;
             border-radius: 30px;
@@ -427,14 +233,7 @@
             color: #ffefc0;
             transition: all 0.2s;
         }
-
-        .theme-btn.locked {
-            opacity: 0.5;
-            cursor: not-allowed;
-            pointer-events: none;
-            filter: grayscale(0.3);
-        }
-
+        .theme-btn.locked { opacity: 0.5; cursor: not-allowed; pointer-events: none; filter: grayscale(0.3); }
         .theme-btn.permanently-locked {
             opacity: 0.3;
             cursor: not-allowed;
@@ -442,40 +241,11 @@
             filter: grayscale(0.5);
             text-decoration: line-through;
         }
-
-        .theme-btn.active, .theme-btn:hover:not(.locked):not(.permanently-locked) {
-            background: #ffaa44;
-            color: #2c1a0a;
-        }
-
-        .top-panel {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 20px;
-            background: rgba(0, 0, 0, 0.4);
-            padding: 8px 18px;
-            border-radius: 60px;
-        }
-
-        .cash-panel {
-            background: #000000aa;
-            padding: 5px 18px;
-            border-radius: 50px;
-            font-weight: bold;
-            color: #ffdd88;
-        }
-
-        .bet-panel {
-            background: #000000aa;
-            padding: 5px 18px;
-            border-radius: 50px;
-            font-weight: bold;
-            color: #ffaa66;
-        }
-
+        .theme-btn.active, .theme-btn:hover:not(.locked):not(.permanently-locked) { background: #ffaa44; color: #2c1a0a; }
+        
+        .top-panel { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; background: rgba(0,0,0,0.4); padding: 8px 18px; border-radius: 60px; }
+        .cash-panel { background: #000000aa; padding: 5px 18px; border-radius: 50px; font-weight: bold; color: #ffdd88; }
+        .bet-panel { background: #000000aa; padding: 5px 18px; border-radius: 50px; font-weight: bold; color: #ffaa66; }
         .level-with-tooltip {
             background: #000000aa;
             padding: 5px 18px;
@@ -486,12 +256,7 @@
             position: relative;
             display: inline-block;
         }
-
-        .level-with-tooltip:hover .tooltip-text {
-            visibility: visible;
-            opacity: 1;
-        }
-
+        .level-with-tooltip:hover .tooltip-text { visibility: visible; opacity: 1; }
         .tooltip-text {
             visibility: hidden;
             opacity: 0;
@@ -509,17 +274,9 @@
             font-size: 0.8rem;
             border: 1px solid #ffcc66;
         }
-
-        .slot-row {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin: 25px 0;
-        }
-
+        .slot-row { display: flex; justify-content: center; gap: 15px; margin: 25px 0; }
         .slot-cell {
-            width: 90px;
-            height: 90px;
+            width: 90px; height: 90px;
             background: radial-gradient(circle at 35% 35%, #fff9e8, #ffefc0);
             border-radius: 25px;
             display: flex;
@@ -528,13 +285,7 @@
             font-size: 3rem;
             box-shadow: 0 8px 0 #6b3a1a;
         }
-
-        .slot-cell.spinning {
-            transform: scale(0.92);
-            filter: brightness(1.1);
-            transition: 0.07s linear;
-        }
-
+        .slot-cell.spinning { transform: scale(0.92); filter: brightness(1.1); transition: 0.07s linear; }
         button {
             background: #ffaa44;
             border: none;
@@ -545,12 +296,7 @@
             cursor: pointer;
             box-shadow: 0 4px 0 #7a4a1a;
         }
-
-        button:active {
-            transform: translateY(2px);
-            box-shadow: 0 2px 0 #7a4a1a;
-        }
-
+        button:active { transform: translateY(2px); box-shadow: 0 2px 0 #7a4a1a; }
         .result-banner {
             background: #0f0e0aee;
             border-radius: 40px;
@@ -562,23 +308,15 @@
             border-left: 3px solid #ffcc66;
             border-right: 3px solid #ffcc66;
         }
-
-        .result-win {
-            background: linear-gradient(90deg, #1e6b1e, #0f4a0f);
-        }
-
-        .result-lose {
-            background: linear-gradient(90deg, #7a2b2b, #4a1a1a);
-        }
-
-        .result-legend {
-            background: linear-gradient(90deg, #d4af37, #aa7c2c);
+        .result-win { background: linear-gradient(90deg, #1e6b1e, #0f4a0f); }
+        .result-lose { background: linear-gradient(90deg, #7a2b2b, #4a1a1a); }
+        .result-legend { 
+            background: linear-gradient(90deg, #d4af37, #aa7c2c); 
             animation: pulse 0.3s ease 2;
             font-size: 1.1rem;
             text-transform: uppercase;
             text-shadow: 0 0 10px #ffcc66;
         }
-
         .jail-banner {
             background: #443333;
             border: 2px solid #ff6666;
@@ -588,7 +326,6 @@
             text-align: center;
             font-weight: bold;
         }
-
         .job-panel {
             background: #1e2a12cc;
             margin-top: 15px;
@@ -596,94 +333,16 @@
             border-radius: 50px;
             text-align: center;
         }
-
-        .job-header {
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-            padding: 8px;
-            border-radius: 40px;
-            background: rgba(0, 0, 0, 0.5);
-        }
-
-        .job-question {
-            background: #000000b3;
-            padding: 12px;
-            border-radius: 30px;
-            margin: 10px 0;
-            font-size: 0.95rem;
-        }
-
-        .job-choices {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 15px;
-        }
-
-        .choice-work {
-            background: #4a7a3b;
-            color: white;
-            box-shadow: 0 4px 0 #2c4a1e;
-            padding: 8px 16px;
-            font-size: 0.85rem;
-            border-radius: 40px;
-            cursor: pointer;
-        }
-
-        .choice-work.danger {
-            background: #aa4433;
-            box-shadow: 0 4px 0 #6a2a1a;
-            animation: riskPulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes riskPulse {
-            0%, 100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-            50% {
-                opacity: 0.85;
-                transform: scale(1.02);
-                background: #cc5533;
-            }
-        }
-
-        .job-exit {
-            background: #666;
-            box-shadow: 0 4px 0 #444;
-            margin-top: 10px;
-        }
-
-        .neco {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            width: 60px;
-            z-index: 100;
-            pointer-events: none;
-            animation: bounce 3s ease-in-out infinite;
-            font-size: 2.5rem;
-        }
-
-        @keyframes bounce {
-            0%, 100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-8px);
-            }
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.02);
-            }
-        }
+        .job-header { font-size: 1.2rem; font-weight: bold; margin-bottom: 10px; padding: 8px; border-radius: 40px; background: rgba(0,0,0,0.5); }
+        .job-question { background: #000000b3; padding: 12px; border-radius: 30px; margin: 10px 0; font-size: 0.95rem; }
+        .job-choices { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 15px; }
+        .choice-work { background: #4a7a3b; color: white; box-shadow: 0 4px 0 #2c4a1e; padding: 8px 16px; font-size: 0.85rem; border-radius: 40px; cursor: pointer; }
+        .choice-work.danger { background: #aa4433; box-shadow: 0 4px 0 #6a2a1a; animation: riskPulse 1.5s ease-in-out infinite; }
+        @keyframes riskPulse { 0%,100%{ opacity:1; transform:scale(1); } 50%{ opacity:0.85; transform:scale(1.02); background:#cc5533; } }
+        .job-exit { background: #666; box-shadow: 0 4px 0 #444; margin-top: 10px; }
+        .neco { position: fixed; bottom: 10px; right: 10px; width: 60px; z-index: 100; pointer-events: none; animation: bounce 3s ease-in-out infinite; font-size: 2.5rem; }
+        @keyframes bounce { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-8px); } }
+        @keyframes pulse { 0%,100%{ transform: scale(1); } 50%{ transform: scale(1.02); } }
 
         .modal {
             display: none;
@@ -692,12 +351,11 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.95);
+            background: rgba(0,0,0,0.95);
             z-index: 1000;
             justify-content: center;
             align-items: center;
         }
-
         .modal-content {
             background: linear-gradient(135deg, #1a1a2e, #16213e);
             border: 3px solid #ffcc66;
@@ -710,32 +368,10 @@
             color: #ffefc0;
             text-align: center;
         }
-
-        .choice-buttons {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-
-        .choice-btn {
-            background: #ffaa44;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-weight: bold;
-            color: #2c1a0a;
-        }
-
-        .save-info {
-            font-size: 0.7rem;
-            text-align: right;
-            margin-top: 10px;
-            opacity: 0.6;
-        }
-
+        .choice-buttons { display: flex; gap: 15px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+        .choice-btn { background: #ffaa44; border: none; padding: 10px 20px; border-radius: 40px; cursor: pointer; font-weight: bold; color: #2c1a0a; }
+        .save-info { font-size: 0.7rem; text-align: right; margin-top: 10px; opacity: 0.6; }
+        
         .levelup-notification {
             position: fixed;
             top: 30%;
@@ -749,25 +385,16 @@
             font-weight: bold;
             text-align: center;
             z-index: 2000;
-            box-shadow: 0 0 50px rgba(255, 200, 0, 0.8);
+            box-shadow: 0 0 50px rgba(255,200,0,0.8);
             border: 2px solid gold;
             animation: levelupAnim 0.5s ease-out;
         }
-
         @keyframes levelupAnim {
-            0% {
-                transform: translate(-50%, -50%) scale(0.5);
-                opacity: 0;
-            }
-            80% {
-                transform: translate(-50%, -50%) scale(1.1);
-            }
-            100% {
-                transform: translate(-50%, -50%) scale(1);
-                opacity: 1;
-            }
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            80% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
         }
-
+        
         .location-unlock-notification {
             position: fixed;
             top: 20%;
@@ -779,102 +406,33 @@
             padding: 20px 40px;
             text-align: center;
             z-index: 2000;
-            box-shadow: 0 0 50px rgba(255, 200, 0, 0.6);
+            box-shadow: 0 0 50px rgba(255,200,0,0.6);
             animation: locationUnlock 0.5s ease-out;
             backdrop-filter: blur(10px);
         }
-
-        .location-unlock-notification .loc-name {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #ffcc66;
-            text-shadow: 0 0 10px #ffaa44;
-        }
-
-        .location-unlock-notification .loc-desc {
-            font-size: 0.9rem;
-            color: #ffefc0;
-            margin-top: 8px;
-        }
-
-        .location-unlock-notification .loc-multiplier {
-            font-size: 1.2rem;
-            color: #ffaa44;
-            margin-top: 5px;
-        }
-
+        .location-unlock-notification .loc-name { font-size: 1.8rem; font-weight: bold; color: #ffcc66; text-shadow: 0 0 10px #ffaa44; }
+        .location-unlock-notification .loc-desc { font-size: 0.9rem; color: #ffefc0; margin-top: 8px; }
+        .location-unlock-notification .loc-multiplier { font-size: 1.2rem; color: #ffaa44; margin-top: 5px; }
         @keyframes locationUnlock {
-            0% {
-                transform: translate(-50%, -50%) scale(0.3);
-                opacity: 0;
-            }
-            60% {
-                transform: translate(-50%, -50%) scale(1.05);
-            }
-            100% {
-                transform: translate(-50%, -50%) scale(1);
-                opacity: 1;
-            }
+            0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+            60% { transform: translate(-50%, -50%) scale(1.05); }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
         }
-
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(135deg, #ffcc66, #ffaa44);
-            border-radius: 10px;
-        }
-
-        * {
-            scrollbar-width: thin;
-            scrollbar-color: #ffaa44 rgba(0, 0, 0, 0.4);
-        }
-
-        @media (max-width: 550px) {
-            .slot-cell {
-                width: 70px;
-                height: 70px;
-                font-size: 2rem;
-            }
-
-            .theme-btn {
-                font-size: 0.7rem;
-                padding: 3px 10px;
-            }
-
-            .choice-work {
-                padding: 6px 12px;
-                font-size: 0.75rem;
-            }
-
-            .menu-title {
-                font-size: 2rem;
-            }
-
-            .menu-btn {
-                font-size: 1rem;
-                width: 180px;
-                padding: 10px 0;
-            }
-
-            .levelup-notification {
-                font-size: 1.2rem;
-                padding: 12px 24px;
-            }
-
-            .location-unlock-notification {
-                padding: 12px 24px;
-            }
-
-            .location-unlock-notification .loc-name {
-                font-size: 1.2rem;
-            }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.4); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(135deg, #ffcc66, #ffaa44); border-radius: 10px; }
+        * { scrollbar-width: thin; scrollbar-color: #ffaa44 rgba(0,0,0,0.4); }
+        
+        @media (max-width: 550px) { 
+            .slot-cell { width: 70px; height: 70px; font-size: 2rem; } 
+            .theme-btn { font-size: 0.7rem; padding: 3px 10px; } 
+            .choice-work { padding: 6px 12px; font-size: 0.75rem; }
+            .menu-title { font-size: 2rem; }
+            .menu-btn { font-size: 1rem; width: 180px; padding: 10px 0; }
+            .levelup-notification { font-size: 1.2rem; padding: 12px 24px; }
+            .location-unlock-notification { padding: 12px 24px; }
+            .location-unlock-notification .loc-name { font-size: 1.2rem; }
         }
     </style>
 </head>
@@ -886,13 +444,13 @@
         <button class="menu-btn" id="playBtn">▶ ИГРАТЬ</button>
         <button class="menu-btn" id="achievementsBtn">🏆 ДОСТИЖЕНИЯ</button>
         <button class="menu-btn" id="settingsBtn">⚙ НАСТРОЙКИ</button>
-
+        
         <div id="modifiersSelector" class="modifiers-selector">
             <h4>⚙️ ВЫБЕРИ МОДИФИКАТОРЫ (до 2-х) ⚙️</h4>
             <div id="modifiersList"></div>
             <button id="applyModifiersBtn" class="menu-btn apply-modifiers-btn">✅ ПРИМЕНИТЬ</button>
         </div>
-
+        
         <div id="achievementsPanel" class="achievements-list"></div>
         <div id="settingsPanel" class="settings-panel">
             <label>🎵 Музыка: <input type="range" id="musicVol" min="0" max="100" value="30"></label>
@@ -903,64 +461,64 @@
 </div>
 
 <div class="game-container" id="gameContainer">
-    <div class="job-background bar" id="jobBg"></div>
-    <div class="bg-effects" id="bgEffects"></div>
-    <div class="neco">🐱🎲</div>
+<div class="job-background bar" id="jobBg"></div>
+<div class="bg-effects" id="bgEffects"></div>
+<div class="neco">🐱🎲</div>
 
-    <div class="game-wrapper">
-        <div class="header-actions">
-            <div>
-                <button class="exit-btn" id="exitBtn">🏠 ВЫХОД</button>
-                <button class="reset-btn" id="resetBtn">🔄 СБРОС</button>
-            </div>
+<div class="game-wrapper">
+    <div class="header-actions">
+        <div>
+            <button class="exit-btn" id="exitBtn">🏠 ВЫХОД</button>
+            <button class="reset-btn" id="resetBtn">🔄 СБРОС</button>
         </div>
-
-        <div class="modifiers-panel" id="modifiersPanel">
-            ⚙️ МОДИФИКАТОРЫ НЕ АКТИВНЫ<br>Победите босса, чтобы открыть
-        </div>
-
-        <div class="theme-bar" id="themeBar">
-            <div class="theme-btn active" data-theme="forest">🌲 Лес (x1)</div>
-            <div class="theme-btn" data-theme="cyberpunk">💜 Киберпанк (x2) 🔒</div>
-            <div class="theme-btn" data-theme="space">🚀 Космос (x3) 🔒</div>
-            <div class="theme-btn" data-theme="church">⛪ Церковь (x5) 🔒</div>
-        </div>
-
-        <div class="top-panel">
-            <div class="cash-panel">💰 <span id="money">200</span>$</div>
-            <div class="bet-panel">🎲 СТАВКА <span id="betAmount">20</span>$</div>
-            <div class="level-with-tooltip" id="levelContainer">
-                📊 УР.<span id="level">1</span>
-                <span class="tooltip-text" id="tooltipText">📊 0 / 100 XP</span>
-            </div>
-        </div>
-
-        <div id="jailPanel" class="jail-banner" style="display:none;">
-            🔒 В ТЮРЬМЕ! Нужно собрать <span id="bailAmount">120</span>$ для выхода 🔒
-            <button id="payBailBtn" style="background:#aa4433; margin-top:8px; padding:4px 12px;">💸 ЗАПЛАТИТЬ ЗАЛОГ</button>
-        </div>
-
-        <div class="slot-row">
-            <div class="slot-cell" id="s0">🍒</div>
-            <div class="slot-cell" id="s1">🍋</div>
-            <div class="slot-cell" id="s2">🍊</div>
-        </div>
-
-        <div style="display: flex; gap: 15px; justify-content: center; margin: 10px 0;">
-            <button id="spinBtn">🎰 КРУТИТЬ (<span id="spinBet">20</span>$)</button>
-            <button id="jobBtn" style="background:#4f7a3b; color:white;">🍺 ПОДРАБОТАТЬ</button>
-        </div>
-
-        <div class="result-banner" id="msg">🌲 Лес • Работай сколько хочешь, опыт только в казино!</div>
-
-        <div class="job-panel" id="jobPanel">
-            <div class="job-header" id="jobHeader">🍺 ЖМИ ПОДРАБОТАТЬ</div>
-            <div class="job-question" id="jobQuestion">Нет денег? Иди работай!</div>
-            <div class="job-choices" id="jobChoices"></div>
-            <button id="jobExitBtn" class="job-exit" style="display:none;">◀ ВЕРНУТЬСЯ</button>
-        </div>
-        <div class="save-info" id="saveInfo">💾 Сохранено</div>
     </div>
+    
+    <div class="modifiers-panel" id="modifiersPanel">
+        ⚙️ МОДИФИКАТОРЫ НЕ АКТИВНЫ<br>Победите босса, чтобы открыть
+    </div>
+    
+    <div class="theme-bar" id="themeBar">
+        <div class="theme-btn active" data-theme="forest">🌲 Лес (x1)</div>
+        <div class="theme-btn" data-theme="cyberpunk">💜 Киберпанк (x2) 🔒</div>
+        <div class="theme-btn" data-theme="space">🚀 Космос (x3) 🔒</div>
+        <div class="theme-btn" data-theme="church">⛪ Церковь (x5) 🔒</div>
+    </div>
+
+    <div class="top-panel">
+        <div class="cash-panel">💰 <span id="money">200</span>$</div>
+        <div class="bet-panel">🎲 СТАВКА <span id="betAmount">20</span>$</div>
+        <div class="level-with-tooltip" id="levelContainer">
+            📊 УР.<span id="level">1</span>
+            <span class="tooltip-text" id="tooltipText">📊 0 / 100 XP</span>
+        </div>
+    </div>
+
+    <div id="jailPanel" class="jail-banner" style="display:none;">
+        🔒 В ТЮРЬМЕ! Нужно собрать <span id="bailAmount">120</span>$ для выхода 🔒
+        <button id="payBailBtn" style="background:#aa4433; margin-top:8px; padding:4px 12px;">💸 ЗАПЛАТИТЬ ЗАЛОГ</button>
+    </div>
+
+    <div class="slot-row">
+        <div class="slot-cell" id="s0">🍒</div>
+        <div class="slot-cell" id="s1">🍋</div>
+        <div class="slot-cell" id="s2">🍊</div>
+    </div>
+
+    <div style="display: flex; gap: 15px; justify-content: center; margin: 10px 0;">
+        <button id="spinBtn">🎰 КРУТИТЬ (<span id="spinBet">20</span>$)</button>
+        <button id="jobBtn" style="background:#4f7a3b; color:white;">🍺 ПОДРАБОТАТЬ</button>
+    </div>
+
+    <div class="result-banner" id="msg">🌲 Лес • Работай сколько хочешь, опыт только в казино!</div>
+
+    <div class="job-panel" id="jobPanel">
+        <div class="job-header" id="jobHeader">🍺 ЖМИ ПОДРАБОТАТЬ</div>
+        <div class="job-question" id="jobQuestion">Нет денег? Иди работай!</div>
+        <div class="job-choices" id="jobChoices"></div>
+        <button id="jobExitBtn" class="job-exit" style="display:none;">◀ ВЕРНУТЬСЯ</button>
+    </div>
+    <div class="save-info" id="saveInfo">💾 Сохранено</div>
+</div>
 </div>
 
 <div id="storyModal" class="modal">
@@ -976,51 +534,56 @@
     let bgMusic = null;
     let levelUpSound = null;
     let winSound = null;
+    let clickSound = null;
     let audioInitialized = false;
     let currentMusicVol = 30;
     let currentSfxVol = 70;
-
-    window.playSFX = function (type) {
+    
+    window.playSFX = function(type) {
         if (!audioInitialized) return;
         let sound = null;
         if (type === 'level_up') sound = levelUpSound;
         if (type === 'win_slot') sound = winSound;
+        if (type === 'click') sound = clickSound;
         if (sound) {
             try {
                 const clone = sound.cloneNode();
                 clone.volume = Math.max(0, Math.min(1, currentSfxVol / 100));
                 clone.play().catch(e => console.log("SFX play error:", e));
-            } catch (e) {
-                console.log("SFX error");
-            }
+            } catch(e) { console.log("SFX error"); }
         }
     };
-
+    
     function loadAudioFiles() {
         try {
             bgMusic = new Audio('sounds/bg_forest.mp3');
             bgMusic.loop = true;
             bgMusic.volume = Math.max(0, Math.min(1, currentMusicVol / 100));
-        } catch (e) {
-            console.log("Music load error");
-        }
+        } catch(e) { console.log("Music load error"); }
         try {
             levelUpSound = new Audio('sounds/level_up.mp3');
             winSound = new Audio('sounds/win_slot.mp3');
+            clickSound = new Audio('sounds/click.mp3');
             levelUpSound.load();
             winSound.load();
-        } catch (e) {
-            console.log("SFX load error");
-        }
+            if(clickSound) clickSound.load();
+        } catch(e) { console.log("SFX load error"); }
     }
-
+    
     function playMusic() {
-        if (bgMusic && audioInitialized) {
+        if (bgMusic && audioInitialized && currentMusicVol > 0) {
             bgMusic.volume = Math.max(0, Math.min(1, currentMusicVol / 100));
             bgMusic.play().catch(e => console.log("Music autoplay blocked"));
         }
     }
-
+    
+    function stopMusic() {
+        if (bgMusic) {
+            bgMusic.pause();
+            bgMusic.currentTime = 0;
+        }
+    }
+    
     function updateMusicVolume(value) {
         currentMusicVol = value;
         if (bgMusic) bgMusic.volume = Math.max(0, Math.min(1, value / 100));
@@ -1031,12 +594,12 @@
             bgMusic.play().catch(e => console.log("Music resume error"));
         }
     }
-
+    
     function updateSfxVolume(value) {
         currentSfxVol = value;
         localStorage.setItem("nekoSfxVol", value);
     }
-
+    
     function loadAudioSettings() {
         const savedMusic = localStorage.getItem("nekoMusicVol");
         const savedSfx = localStorage.getItem("nekoSfxVol");
@@ -1045,46 +608,18 @@
         document.getElementById("musicVol").value = currentMusicVol;
         document.getElementById("sfxVol").value = currentSfxVol;
     }
-
+    
     // ========== МОДИФИКАТОРЫ ==========
     const ALL_MODIFIERS = [
-        {
-            id: "noLegend",
-            name: "⭐ Без легендарок",
-            desc: "Легендарные слоты не выпадают",
-            effect: (p) => {
-                p.legendDisabled = true;
-            }
-        },
-        {
-            id: "badRep",
-            name: "👺 Плохая репутация",
-            desc: "Шанс успеха на подработках -15%",
-            effect: (p) => {
-                p.badReputation = true;
-            }
-        },
-        {
-            id: "smallWin",
-            name: "💰 Жадное казино",
-            desc: "Выигрыши уменьшены на 20%",
-            effect: (p) => {
-                p.smallWins = true;
-            }
-        },
-        {
-            id: "highRisk",
-            name: "🎲 Высокий риск",
-            desc: "Рисковые действия опаснее на 25%",
-            effect: (p) => {
-                p.highRisk = true;
-            }
-        }
+        { id: "noLegend", name: "⭐ Без легендарок", desc: "Легендарные слоты не выпадают", effect: (p) => { p.legendDisabled = true; } },
+        { id: "badRep", name: "👺 Плохая репутация", desc: "Шанс успеха на подработках -15%", effect: (p) => { p.badReputation = true; } },
+        { id: "smallWin", name: "💰 Жадное казино", desc: "Выигрыши уменьшены на 20%", effect: (p) => { p.smallWins = true; } },
+        { id: "highRisk", name: "🎲 Высокий риск", desc: "Рисковые действия опаснее на 25%", effect: (p) => { p.highRisk = true; } }
     ];
-
+    
     let activeModifiers = [];
     let gameCompleted = false;
-
+    
     function updateModifiersSelectorUI() {
         const container = document.getElementById("modifiersList");
         if (!container) return;
@@ -1097,17 +632,14 @@
             container.appendChild(div);
         });
     }
-
+    
     function applySelectedModifiers() {
         const selected = [];
         ALL_MODIFIERS.forEach(mod => {
             const cb = document.getElementById(`mod_${mod.id}`);
             if (cb && cb.checked) selected.push(mod);
         });
-        if (selected.length > 2) {
-            alert("Можно выбрать не более 2 модификаторов!");
-            return;
-        }
+        if (selected.length > 2) { alert("Можно выбрать не более 2 модификаторов!"); return; }
         activeModifiers = selected;
         applyModifiersToPlayer(player);
         updateModifiersUI();
@@ -1115,7 +647,7 @@
         document.getElementById("modifiersSelector").style.display = "none";
         document.getElementById("msg").innerHTML = "✅ Модификаторы применены! Удачи! ✅";
     }
-
+    
     function updateModifiersUI() {
         const panel = document.getElementById("modifiersPanel");
         if (!panel) return;
@@ -1124,12 +656,10 @@
             return;
         }
         let html = '⚠️ АКТИВНЫЕ МОДИФИКАТОРЫ ⚠️<br>';
-        activeModifiers.forEach(m => {
-            html += `<span class="modifier-badge">${m.name}</span>`;
-        });
+        activeModifiers.forEach(m => { html += `<span class="modifier-badge">${m.name}</span>`; });
         panel.innerHTML = html;
     }
-
+    
     function applyModifiersToPlayer(p) {
         p.legendDisabled = false;
         p.badReputation = false;
@@ -1142,7 +672,7 @@
             if (m.id === "highRisk") p.highRisk = true;
         });
     }
-
+    
     // ========== СИСТЕМА СТАВОК ==========
     function getCurrentBet() {
         if (player.level >= 16) return 80;
@@ -1150,11 +680,11 @@
         if (player.level >= 6) return 40;
         return 20;
     }
-
+    
     // ========== ТЮРЬМА ==========
     let isInJail = false;
     let bailAmount = 120;
-
+    
     function sendToJail(reason) {
         if (isInJail) return;
         isInJail = true;
@@ -1164,7 +694,7 @@
         document.getElementById("msg").innerHTML = `🔒 ${reason} ТЕБЯ ПОСАДИЛИ! Нужно ${bailAmount}$ для выхода. 🔒`;
         saveGame();
     }
-
+    
     function payBail() {
         if (!isInJail) return;
         if (player.money >= bailAmount) {
@@ -1180,21 +710,21 @@
             document.getElementById("msg").innerHTML = `❌ Не хватает денег! Нужно ${bailAmount}$, есть ${player.money}$ ❌`;
         }
     }
-
+    
     // ========== АЧИВКИ ==========
     let achievements = {
-        firstJob: {name: "💼 ПЕРВАЯ ПОДРАБОТКА", desc: "Выполнить любую подработку", unlocked: false},
-        millionaire: {name: "💰 МИЛЛИОНЕР", desc: "Накопить 10000$", unlocked: false},
-        churchVisitor: {name: "⛪ ПАЛОМНИК", desc: "Посетить Церковь (16+ уровень)", unlocked: false},
-        legendHunter: {name: "⭐ ОХОТНИК ЗА ЛЕГЕНДАМИ", desc: "Поймать 5 легендарок", unlocked: false},
-        bossDefeated: {name: "👑 ПОБЕДИТЕЛЬ", desc: "Победить Бога Слотов", unlocked: false},
-        hardcorePlayer: {name: "💀 ХАРДКОРЩИК", desc: "Победить босса с активными модификаторами", unlocked: false}
+        firstJob: { name: "💼 ПЕРВАЯ ПОДРАБОТКА", desc: "Выполнить любую подработку", unlocked: false },
+        millionaire: { name: "💰 МИЛЛИОНЕР", desc: "Накопить 10000$", unlocked: false },
+        churchVisitor: { name: "⛪ ПАЛОМНИК", desc: "Посетить Церковь (16+ уровень)", unlocked: false },
+        legendHunter: { name: "⭐ ОХОТНИК ЗА ЛЕГЕНДАМИ", desc: "Поймать 5 легендарок", unlocked: false },
+        bossDefeated: { name: "👑 ПОБЕДИТЕЛЬ", desc: "Победить Бога Слотов", unlocked: false },
+        hardcorePlayer: { name: "💀 ХАРДКОРЩИК", desc: "Победить босса с активными модификаторами", unlocked: false }
     };
-
+    
     let spinCount = 0;
     let legendCount = 0;
     let jobCount = 0;
-
+    
     function checkAchievements() {
         if (jobCount >= 1 && !achievements.firstJob.unlocked) unlockAchievement("firstJob");
         if (player.money >= 10000 && !achievements.millionaire.unlocked) unlockAchievement("millionaire");
@@ -1205,7 +735,7 @@
         saveAchievements();
         updateAchievementsUI();
     }
-
+    
     function unlockAchievement(achKey) {
         if (!achievements[achKey].unlocked) {
             achievements[achKey].unlocked = true;
@@ -1217,23 +747,14 @@
             }, 3000);
         }
     }
-
-    function saveAchievements() {
-        localStorage.setItem("nekoAchievements", JSON.stringify(achievements));
-    }
-
+    
+    function saveAchievements() { localStorage.setItem("nekoAchievements", JSON.stringify(achievements)); }
     function loadAchievements() {
         const saved = localStorage.getItem("nekoAchievements");
-        if (saved) {
-            try {
-                const data = JSON.parse(saved);
-                achievements = {...achievements, ...data};
-            } catch (e) {
-            }
-        }
+        if (saved) { try { const data = JSON.parse(saved); achievements = { ...achievements, ...data }; } catch(e) {} }
         updateAchievementsUI();
     }
-
+    
     function updateAchievementsUI() {
         const panel = document.getElementById("achievementsPanel");
         if (!panel) return;
@@ -1246,70 +767,67 @@
             panel.appendChild(div);
         }
     }
-
+    
     // ========== КОНФИГ ==========
-    const FRUITS = ["🍒", "🍋", "🍊", "🍉", "🍎", "🍓", "🍑"];
+    const FRUITS = ["🍒","🍋","🍊","🍉","🍎","🍓","🍑"];
     const STAR = "⭐";
-
+    
     const EXP_FOR_LEVEL = {
         1: 0, 2: 100, 3: 220, 4: 360, 5: 520, 6: 700, 7: 900, 8: 1120, 9: 1360, 10: 1620,
         11: 1900, 12: 2200, 13: 2520, 14: 2860, 15: 3220, 16: 3600, 17: 4000, 18: 4420, 19: 4860, 20: 5320
     };
-
-    const THEME_UNLOCK = {forest: 1, cyberpunk: 6, space: 11, church: 16};
-    const THEME_MULTIPLIERS = {forest: 1, cyberpunk: 2, space: 3, church: 5};
-    const THEME_RISK = {forest: 0, cyberpunk: 0.05, space: 0.1, church: 0.15};
-
-    // ПОРЯДОК ЛОКАЦИЙ ДЛЯ БЛОКИРОВКИ СТАРЫХ
+    
+    const THEME_UNLOCK = { forest: 1, cyberpunk: 6, space: 11, church: 16 };
+    const THEME_MULTIPLIERS = { forest: 1, cyberpunk: 2, space: 3, church: 5 };
+    const THEME_RISK = { forest: 0, cyberpunk: 0.05, space: 0.1, church: 0.15 };
+    
     const themeOrder = ["forest", "cyberpunk", "space", "church"];
-
+    
     function updateThemeButtonsWithLock() {
         const currentIndex = themeOrder.indexOf(player.currentTheme);
-
         document.querySelectorAll(".theme-btn").forEach(btn => {
             const theme = btn.dataset.theme;
             const requiredLevel = THEME_UNLOCK[theme];
             const isUnlocked = player.level >= requiredLevel;
             const themeIndex = themeOrder.indexOf(theme);
             const isPastTheme = themeIndex < currentIndex && theme !== player.currentTheme;
-
+            
             if (isPastTheme) {
-                // СТАРЫЕ ЛОКАЦИИ — НАВСЕГДА ЗАБЛОКИРОВАНЫ
                 btn.classList.add("permanently-locked");
                 btn.classList.remove("locked", "active");
-                let text = theme === "forest" ? "🌲 Лес (x1) 🔒" :
-                    theme === "cyberpunk" ? "💜 Киберпанк (x2) 🔒" :
-                        theme === "space" ? "🚀 Космос (x3) 🔒" :
-                            "⛪ Церковь (x5) 🔒";
+                let text = theme === "forest" ? "🌲 Лес (x1) 🔒" : 
+                           theme === "cyberpunk" ? "💜 Киберпанк (x2) 🔒" : 
+                           theme === "space" ? "🚀 Космос (x3) 🔒" : 
+                           "⛪ Церковь (x5) 🔒";
                 btn.innerHTML = text + " ❌";
             } else if (isUnlocked && theme === player.currentTheme) {
                 btn.classList.remove("locked", "permanently-locked");
                 btn.classList.add("active");
-                let text = theme === "forest" ? "🌲 Лес (x1)" :
-                    theme === "cyberpunk" ? "💜 Киберпанк (x2)" :
-                        theme === "space" ? "🚀 Космос (x3)" :
-                            "⛪ Церковь (x5)";
+                let text = theme === "forest" ? "🌲 Лес (x1)" : 
+                           theme === "cyberpunk" ? "💜 Киберпанк (x2)" : 
+                           theme === "space" ? "🚀 Космос (x3)" : 
+                           "⛪ Церковь (x5)";
                 btn.innerHTML = text;
             } else if (isUnlocked && themeIndex > currentIndex) {
                 btn.classList.remove("locked", "permanently-locked");
                 btn.classList.remove("active");
-                let text = theme === "forest" ? "🌲 Лес (x1)" :
-                    theme === "cyberpunk" ? "💜 Киберпанк (x2)" :
-                        theme === "space" ? "🚀 Космос (x3)" :
-                            "⛪ Церковь (x5)";
+                let text = theme === "forest" ? "🌲 Лес (x1)" : 
+                           theme === "cyberpunk" ? "💜 Киберпанк (x2)" : 
+                           theme === "space" ? "🚀 Космос (x3)" : 
+                           "⛪ Церковь (x5)";
                 btn.innerHTML = text + " 🔓";
             } else {
                 btn.classList.add("locked");
                 btn.classList.remove("permanently-locked", "active");
-                let text = theme === "forest" ? "🌲 Лес (x1)" :
-                    theme === "cyberpunk" ? "💜 Киберпанк (x2)" :
-                        theme === "space" ? "🚀 Космос (x3)" :
-                            "⛪ Церковь (x5)";
+                let text = theme === "forest" ? "🌲 Лес (x1)" : 
+                           theme === "cyberpunk" ? "💜 Киберпанк (x2)" : 
+                           theme === "space" ? "🚀 Космос (x3)" : 
+                           "⛪ Церковь (x5)";
                 btn.innerHTML = text + " 🔒";
             }
         });
     }
-
+    
     function showLocationUnlockNotification(theme, multiplier) {
         const names = {
             forest: "🌲 ЛЕС",
@@ -1334,99 +852,80 @@
             <div style="font-size:0.8rem; margin-top:4px;">🔄 Автоматический переход...</div>
         `;
         document.body.appendChild(notification);
-
         setTimeout(() => {
             notification.remove();
             document.querySelectorAll(".theme-btn").forEach(btn => {
-                if (btn.dataset.theme === theme) {
-                    btn.classList.add("active");
-                }
+                if (btn.dataset.theme === theme) btn.classList.add("active");
             });
             applyTheme(theme);
             updateThemeButtonsWithLock();
             document.getElementById("msg").innerHTML = `✨ Автоматический переход в ${names[theme]}! Множитель x${multiplier}. Старые локации навсегда заблокированы! ✨`;
         }, 2500);
     }
-
+    
     // ========== ЗАДАНИЯ ==========
     const tasksData = {
         forest: [
-            {
-                text: "🍄 Бобёр-алкоголик просит добавки.", choices: [
-                    {txt: "🍺 Налить ещё", suc: 12, fail: -5, chance: 0.7, char: "beaver", danger: false, jailChance: 0},
-                    {txt: "🍵 Заменить на чай", suc: 8, fail: -3, chance: 0.8, char: "oracle", danger: false, jailChance: 0},
-                    {txt: "🚫 Послать лесом", suc: 20, fail: -15, chance: 0.4, char: "goblin", danger: true, jailChance: 0.15}
-                ]
-            },
-            {
-                text: "🦉 Сова-психолог жалуется на жизнь.", choices: [
-                    {txt: "🎧 Сделать вид, что слушаешь", suc: 8, fail: -3, chance: 0.85, char: "angel", danger: false, jailChance: 0},
-                    {txt: "🍺 Напоить сову", suc: 14, fail: -8, chance: 0.6, char: "beaver", danger: false, jailChance: 0},
-                    {txt: "🦉 Отправить к психотерапевту", suc: 6, fail: -10, chance: 0.5, char: "comedian", danger: true, jailChance: 0.1}
-                ]
-            }
+            { text: "🍄 Бобёр-алкоголик просит добавки.", choices: [
+                { txt: "🍺 Налить ещё", suc:12, fail:-5, chance:0.7, char:"beaver", danger:false, jailChance:0 },
+                { txt: "🍵 Заменить на чай", suc:8, fail:-3, chance:0.8, char:"oracle", danger:false, jailChance:0 },
+                { txt: "🚫 Послать лесом", suc:20, fail:-15, chance:0.4, char:"goblin", danger:true, jailChance:0.15 }
+            ] },
+            { text: "🦉 Сова-психолог жалуется на жизнь.", choices: [
+                { txt: "🎧 Сделать вид, что слушаешь", suc:8, fail:-3, chance:0.85, char:"angel", danger:false, jailChance:0 },
+                { txt: "🍺 Напоить сову", suc:14, fail:-8, chance:0.6, char:"beaver", danger:false, jailChance:0 },
+                { txt: "🦉 Отправить к психотерапевту", suc:6, fail:-10, chance:0.5, char:"comedian", danger:true, jailChance:0.1 }
+            ] }
         ],
         cyberpunk: [
-            {
-                text: "🤖 Кибер-собака грызет провода.", choices: [
-                    {txt: "🔧 Перепрограммировать", suc: 20, fail: -15, chance: 0.55, char: "mechanic", danger: false, jailChance: 0},
-                    {txt: "🍖 Кинуть мясо", suc: 14, fail: -8, chance: 0.7, char: "comedian", danger: false, jailChance: 0},
-                    {txt: "💥 Ударить током", suc: 25, fail: -22, chance: 0.4, char: "demon", danger: true, jailChance: 0.2}
-                ]
-            },
-            {
-                text: "👾 Хакер взломал слоты.", choices: [
-                    {txt: "💻 Устроить кибервойну", suc: 22, fail: -18, chance: 0.5, char: "goblin", danger: true, jailChance: 0.25},
-                    {txt: "🍺 Отключить всё и выпить", suc: 12, fail: -8, chance: 0.65, char: "bartender", danger: false, jailChance: 0},
-                    {txt: "🤝 Предложить работу", suc: 18, fail: -10, chance: 0.6, char: "oracle", danger: false, jailChance: 0}
-                ]
-            }
+            { text: "🤖 Кибер-собака грызет провода.", choices: [
+                { txt: "🔧 Перепрограммировать", suc:20, fail:-15, chance:0.55, char:"mechanic", danger:false, jailChance:0 },
+                { txt: "🍖 Кинуть мясо", suc:14, fail:-8, chance:0.7, char:"comedian", danger:false, jailChance:0 },
+                { txt: "💥 Ударить током", suc:25, fail:-22, chance:0.4, char:"demon", danger:true, jailChance:0.2 }
+            ] },
+            { text: "👾 Хакер взломал слоты.", choices: [
+                { txt: "💻 Устроить кибервойну", suc:22, fail:-18, chance:0.5, char:"goblin", danger:true, jailChance:0.25 },
+                { txt: "🍺 Отключить всё и выпить", suc:12, fail:-8, chance:0.65, char:"bartender", danger:false, jailChance:0 },
+                { txt: "🤝 Предложить работу", suc:18, fail:-10, chance:0.6, char:"oracle", danger:false, jailChance:0 }
+            ] }
         ],
         space: [
-            {
-                text: "🚀 Пришелец не понимает земных денег.", choices: [
-                    {txt: "🛸 Договориться жестами", suc: 16, fail: -10, chance: 0.65, char: "oracle", danger: false, jailChance: 0},
-                    {txt: "📦 Дать коробку 'сюрприз'", suc: 22, fail: -18, chance: 0.45, char: "demon", danger: true, jailChance: 0.25},
-                    {txt: "🍕 Угостить пиццей", suc: 12, fail: -6, chance: 0.7, char: "comedian", danger: false, jailChance: 0}
-                ]
-            },
-            {
-                text: "🧑‍🚀 Космонавт потерял скафандр.", choices: [
-                    {txt: "🎯 Надеть мусорный пакет", suc: 18, fail: -12, chance: 0.55, char: "goblin", danger: true, jailChance: 0.2},
-                    {txt: "🛠 Починить из подручных средств", suc: 15, fail: -8, chance: 0.7, char: "mechanic", danger: false, jailChance: 0},
-                    {txt: "👽 Сдать его пришельцам", suc: 25, fail: -20, chance: 0.4, char: "demon", danger: true, jailChance: 0.35}
-                ]
-            }
+            { text: "🚀 Пришелец не понимает земных денег.", choices: [
+                { txt: "🛸 Договориться жестами", suc:16, fail:-10, chance:0.65, char:"oracle", danger:false, jailChance:0 },
+                { txt: "📦 Дать коробку 'сюрприз'", suc:22, fail:-18, chance:0.45, char:"demon", danger:true, jailChance:0.25 },
+                { txt: "🍕 Угостить пиццей", suc:12, fail:-6, chance:0.7, char:"comedian", danger:false, jailChance:0 }
+            ] },
+            { text: "🧑‍🚀 Космонавт потерял скафандр.", choices: [
+                { txt: "🎯 Надеть мусорный пакет", suc:18, fail:-12, chance:0.55, char:"goblin", danger:true, jailChance:0.2 },
+                { txt: "🛠 Починить из подручных средств", suc:15, fail:-8, chance:0.7, char:"mechanic", danger:false, jailChance:0 },
+                { txt: "👽 Сдать его пришельцам", suc:25, fail:-20, chance:0.4, char:"demon", danger:true, jailChance:0.35 }
+            ] }
         ],
         church: [
-            {
-                text: "⛪ Священник тайно играет в слоты.", choices: [
-                    {txt: "🙏 Сделать вид, что не заметил", suc: 10, fail: -5, chance: 0.8, char: "angel", danger: false, jailChance: 0},
-                    {txt: "🍷 Шантажировать", suc: 18, fail: -12, chance: 0.55, char: "bartender", danger: false, jailChance: 0.3},
-                    {txt: "🔥 Устроить экзорцизм", suc: 25, fail: -20, chance: 0.45, char: "demon", danger: true, jailChance: 0.35}
-                ]
-            },
-            {
-                text: "🕯️ В церкви закончились свечи.", choices: [
-                    {txt: "🔦 Включить фонарики", suc: 14, fail: -8, chance: 0.7, char: "mechanic", danger: false, jailChance: 0},
-                    {txt: "🪵 Развести костёр из икон", suc: 20, fail: -15, chance: 0.5, char: "goblin", danger: true, jailChance: 0.25},
-                    {txt: "🙏 Молиться в темноте", suc: 8, fail: -4, chance: 0.8, char: "oracle", danger: false, jailChance: 0}
-                ]
-            }
+            { text: "⛪ Священник тайно играет в слоты.", choices: [
+                { txt: "🙏 Сделать вид, что не заметил", suc:10, fail:-5, chance:0.8, char:"angel", danger:false, jailChance:0 },
+                { txt: "🍷 Шантажировать", suc:18, fail:-12, chance:0.55, char:"bartender", danger:false, jailChance:0.3 },
+                { txt: "🔥 Устроить экзорцизм", suc:25, fail:-20, chance:0.45, char:"demon", danger:true, jailChance:0.35 }
+            ] },
+            { text: "🕯️ В церкви закончились свечи.", choices: [
+                { txt: "🔦 Включить фонарики", suc:14, fail:-8, chance:0.7, char:"mechanic", danger:false, jailChance:0 },
+                { txt: "🪵 Развести костёр из икон", suc:20, fail:-15, chance:0.5, char:"goblin", danger:true, jailChance:0.25 },
+                { txt: "🙏 Молиться в темноте", suc:8, fail:-4, chance:0.8, char:"oracle", danger:false, jailChance:0 }
+            ] }
         ]
     };
-
+    
     const characters = {
-        beaver: {name: "Бобёр", emoji: "🦫"}, oracle: {name: "Оракул", emoji: "🐱🔮"},
-        goblin: {name: "Гоблин", emoji: "👺"}, bartender: {name: "Бармен", emoji: "🍺"},
-        mechanic: {name: "Механик", emoji: "🔧"}, comedian: {name: "Комик", emoji: "🎤"},
-        angel: {name: "Ангел", emoji: "😇"}, demon: {name: "Демон", emoji: "😈"}
+        beaver: { name: "Бобёр", emoji: "🦫" }, oracle: { name: "Оракул", emoji: "🐱🔮" },
+        goblin: { name: "Гоблин", emoji: "👺" }, bartender: { name: "Бармен", emoji: "🍺" },
+        mechanic: { name: "Механик", emoji: "🔧" }, comedian: { name: "Комик", emoji: "🎤" },
+        angel: { name: "Ангел", emoji: "😇" }, demon: { name: "Демон", emoji: "😈" }
     };
-
+    
     // ========== ОЧЕРЕДЬ МОДАЛЬНЫХ ОКОН ==========
     let pendingLevelUpEvent = null;
     let isModalOpen = false;
-
+    
     function showLevelUpNotificationAndEvent(newLevel) {
         const notification = document.createElement("div");
         notification.className = "levelup-notification";
@@ -1437,13 +936,12 @@
         if (newLevel >= 2 && newLevel <= 18 && levelEvents[newLevel]) {
             pendingLevelUpEvent = newLevel;
         }
-
-        // ПРОВЕРКА ОТКРЫТИЯ НОВЫХ ЛОКАЦИЙ
+        
         const newLocations = [];
         if (newLevel === 6 && player.currentTheme !== "cyberpunk") newLocations.push("cyberpunk");
         if (newLevel === 11 && player.currentTheme !== "space") newLocations.push("space");
         if (newLevel === 16 && player.currentTheme !== "church") newLocations.push("church");
-
+        
         if (newLocations.length > 0) {
             setTimeout(() => {
                 const loc = newLocations[0];
@@ -1451,56 +949,53 @@
             }, 2200);
         }
     }
-
+    
     function checkAndShowPendingEvent() {
         if (pendingLevelUpEvent && !isModalOpen) {
             showLevelUpEvent(pendingLevelUpEvent);
             pendingLevelUpEvent = null;
         }
     }
-
+    
     // ========== ИГРОВЫЕ ПЕРЕМЕННЫЕ ==========
     let canSave = false;
     let player = {
         level: 1, money: 200, exp: 0, hasAmulet: false, hasCursedCoin: false, defeatedBoss: false, currentTheme: "forest",
         legendDisabled: false, badReputation: false, smallWins: false, highRisk: false
     };
-
+    
     let currentJob = null;
     let currentTask = null;
     let isWorking = false;
     let jobBg = document.getElementById("jobBg");
-
+    
     function updateBetUI() {
         const bet = getCurrentBet();
         document.getElementById("betAmount").innerText = bet;
         document.getElementById("spinBet").innerText = bet;
     }
-
-    function getCurrentMultiplier() {
-        return THEME_MULTIPLIERS[player.currentTheme] || 1;
-    }
-
-    function getCurrentRisk() {
+    
+    function getCurrentMultiplier() { return THEME_MULTIPLIERS[player.currentTheme] || 1; }
+    function getCurrentRisk() { 
         let baseRisk = THEME_RISK[player.currentTheme] || 0;
         if (player.badReputation) baseRisk += 0.15;
         if (player.highRisk) baseRisk += 0.1;
         return Math.min(0.7, baseRisk);
     }
-
+    
     function getTasksForCurrentTheme() {
         if (!player.currentTheme || !tasksData[player.currentTheme]) return tasksData.forest;
         return tasksData[player.currentTheme];
     }
-
-    function saveGame() {
-        if (!canSave) return;
-        localStorage.setItem("nekoSlotSave", JSON.stringify({
-            player, spinCount, legendCount, jobCount,
-            activeModifiers, gameCompleted, isInJail, bailAmount
-        }));
+    
+    function saveGame() { 
+        if (!canSave) return; 
+        localStorage.setItem("nekoSlotSave", JSON.stringify({ 
+            player, spinCount, legendCount, jobCount, 
+            activeModifiers, gameCompleted, isInJail, bailAmount 
+        })); 
     }
-
+    
     function loadGame() {
         const saved = localStorage.getItem("nekoSlotSave");
         if (saved) {
@@ -1514,7 +1009,7 @@
                 gameCompleted = data.gameCompleted || false;
                 isInJail = data.isInJail || false;
                 bailAmount = data.bailAmount || 120;
-
+                
                 if (isInJail) {
                     document.getElementById("jailPanel").style.display = "block";
                     document.getElementById("spinBtn").disabled = true;
@@ -1523,30 +1018,29 @@
                 applyModifiersToPlayer(player);
                 updateModifiersUI();
                 updateUI();
-            } catch (e) {
-            }
+            } catch(e) {}
         }
     }
-
+    
     function updateUI() {
         document.getElementById("money").innerText = Math.floor(player.money);
         document.getElementById("level").innerText = player.level;
         updateBetUI();
-
+        
         if (player.level >= 20) {
             document.getElementById("tooltipText").innerHTML = "🏆 МАКСИМАЛЬНЫЙ УРОВЕНЬ! 🏆";
         } else {
-            const need = EXP_FOR_LEVEL[player.level + 1] - EXP_FOR_LEVEL[player.level];
+            const need = EXP_FOR_LEVEL[player.level+1] - EXP_FOR_LEVEL[player.level];
             const current = player.exp - EXP_FOR_LEVEL[player.level];
             const display = Math.min(current, need);
-            document.getElementById("tooltipText").innerHTML = `📊 ${display} / ${need} XP до ${player.level + 1} уровня`;
+            document.getElementById("tooltipText").innerHTML = `📊 ${display} / ${need} XP до ${player.level+1} уровня`;
         }
-
+        
         if (!isWorking && !isInJail) document.getElementById("spinBtn").disabled = player.money < getCurrentBet();
         updateThemeButtonsWithLock();
         if (player.level >= 20 && !player.defeatedBoss) startBossFight();
     }
-
+    
     function addExp(amount) {
         if (player.level >= 20) return;
         let multiplier = getCurrentMultiplier();
@@ -1554,7 +1048,7 @@
         let finalAmount = Math.floor(amount * multiplier);
         player.exp += finalAmount;
         let leveled = false;
-        while (player.level < 20 && player.exp >= EXP_FOR_LEVEL[player.level + 1]) {
+        while (player.level < 20 && player.exp >= EXP_FOR_LEVEL[player.level+1]) {
             player.level++;
             player.money += 100 * multiplier;
             leveled = true;
@@ -1562,13 +1056,10 @@
             showLevelUpNotificationAndEvent(player.level);
         }
         updateUI();
-        if (leveled) {
-            saveGame();
-            checkAchievements();
-        }
+        if (leveled) { saveGame(); checkAchievements(); }
         setTimeout(() => checkAndShowPendingEvent(), 100);
     }
-
+    
     function showJobBackground(jobType) {
         jobBg.className = "job-background";
         if (jobType === "forest") jobBg.classList.add("bar");
@@ -1577,14 +1068,8 @@
         else if (jobType === "church") jobBg.classList.add("bar");
         setTimeout(() => jobBg.classList.add("active"), 50);
     }
-
-    function hideJobBackground() {
-        jobBg.classList.remove("active");
-        setTimeout(() => {
-            jobBg.className = "job-background bar";
-        }, 500);
-    }
-
+    function hideJobBackground() { jobBg.classList.remove("active"); setTimeout(() => { jobBg.className = "job-background bar"; }, 500); }
+    
     function startRandomJob() {
         if (isInJail) {
             document.getElementById("msg").innerHTML = "🔒 Ты в тюрьме! Заплати залог, чтобы работать! 🔒";
@@ -1596,8 +1081,8 @@
         currentJob = player.currentTheme;
         isWorking = true;
         showJobBackground(currentJob);
-        const jobNames = {forest: "🌲 ЛЕС", cyberpunk: "💜 КИБЕРПАНК", space: "🚀 КОСМОС", church: "⛪ ЦЕРКОВЬ"};
-        const jobEmojis = {forest: "🌲", cyberpunk: "💜", space: "🚀", church: "⛪"};
+        const jobNames = { forest: "🌲 ЛЕС", cyberpunk: "💜 КИБЕРПАНК", space: "🚀 КОСМОС", church: "⛪ ЦЕРКОВЬ" };
+        const jobEmojis = { forest: "🌲", cyberpunk: "💜", space: "🚀", church: "⛪" };
         document.getElementById("jobHeader").innerHTML = `${jobEmojis[currentJob]} ${jobNames[currentJob]} ${jobEmojis[currentJob]}`;
         document.getElementById("jobQuestion").innerHTML = `📋 ${currentTask.text}`;
         const choicesDiv = document.getElementById("jobChoices");
@@ -1614,7 +1099,7 @@
         document.getElementById("spinBtn").disabled = true;
         return true;
     }
-
+    
     function handleWorkChoice(choice) {
         let multiplier = getCurrentMultiplier();
         if (player.smallWins) multiplier = Math.max(0.5, multiplier - 0.3);
@@ -1626,11 +1111,11 @@
         let reward = isSuccess ? choice.suc : choice.fail;
         reward = Math.floor(reward * multiplier);
         const character = characters[choice.char];
-
+        
         let jailChance = choice.jailChance || 0;
         if (player.highRisk && choice.danger) jailChance += 0.1;
         const goToJail = !isSuccess && Math.random() < jailChance;
-
+        
         if (isSuccess) {
             player.money += reward;
             jobCount++;
@@ -1642,9 +1127,9 @@
             document.getElementById("msg").classList.add("result-lose");
             document.getElementById("msg").innerHTML = `${choice.txt} — ПРОВАЛ! ${Math.abs(reward)}$ ${character ? character.name : ""}`;
         }
-
+        
         if (goToJail) sendToJail("За свои \"творческие\" методы работы ");
-
+        
         setTimeout(() => {
             document.getElementById("msg").classList.remove("result-win");
             document.getElementById("msg").classList.remove("result-lose");
@@ -1653,7 +1138,7 @@
         saveGame();
         endWork();
     }
-
+    
     function endWork() {
         isWorking = false;
         hideJobBackground();
@@ -1666,12 +1151,15 @@
         document.getElementById("jobBtn").style.display = "inline-block";
         if (!isInJail) document.getElementById("spinBtn").disabled = false;
     }
-
+    
     function spin() {
         if (isInJail) {
             document.getElementById("msg").innerHTML = "🔒 Ты в тюрьме! Заплати залог! 🔒";
             return;
         }
+        // ЗВУК НАЖАТИЯ КНОПКИ
+        window.playSFX('click');
+        
         const CURRENT_BET = getCurrentBet();
         if (player.money < CURRENT_BET) {
             document.getElementById("msg").classList.add("result-lose");
@@ -1686,15 +1174,9 @@
         if (player.legendDisabled) legChance = 0;
         let row;
         if (r < legChance) row = [STAR, STAR, STAR];
-        else if (r < 0.17 + (player.hasCursedCoin ? 0.03 : 0)) {
-            let f = FRUITS[Math.floor(Math.random() * FRUITS.length)];
-            row = [f, f, f];
-        } else {
-            do {
-                row = [FRUITS[Math.floor(Math.random() * FRUITS.length)], FRUITS[Math.floor(Math.random() * FRUITS.length)], FRUITS[Math.floor(Math.random() * FRUITS.length)]];
-            } while (row[0] === row[1] && row[1] === row[2]);
-        }
-
+        else if (r < 0.17 + (player.hasCursedCoin ? 0.03 : 0)) { let f = FRUITS[Math.floor(Math.random()*FRUITS.length)]; row = [f, f, f]; }
+        else { do { row = [FRUITS[Math.floor(Math.random()*FRUITS.length)], FRUITS[Math.floor(Math.random()*FRUITS.length)], FRUITS[Math.floor(Math.random()*FRUITS.length)]]; } while(row[0]===row[1] && row[1]===row[2]); }
+        
         const sCells = [document.getElementById("s0"), document.getElementById("s1"), document.getElementById("s2")];
         const slotAnimation = document.getElementById("slotAnimation")?.checked !== false;
         if (slotAnimation) sCells.forEach(s => s.classList.add("spinning"));
@@ -1702,165 +1184,131 @@
             sCells.forEach((s, i) => s.innerText = row[i]);
             if (slotAnimation) sCells.forEach(s => s.classList.remove("spinning"));
         }, 120);
-
+        
         let multiplier = getCurrentMultiplier();
         if (player.smallWins) multiplier = Math.max(0.5, multiplier - 0.3);
-        const isWin = row[0] === row[1] && row[1] === row[2];
+        const isWin = row[0]===row[1] && row[1]===row[2];
         let win = 0, expG = 0;
         spinCount++;
         if (isWin) {
             window.playSFX('win_slot');
-            if (row[0] === STAR) {
-                win = (CURRENT_BET * 6 + 100) * multiplier;
+            if (row[0] === STAR) { 
+                win = (CURRENT_BET * 6 + 100) * multiplier; 
                 expG = 70 * multiplier;
                 legendCount++;
-                document.getElementById("msg").classList.add("result-legend");
-                document.getElementById("msg").innerHTML = `🌟🌟🌟 ЛЕГЕНДАРКА! +${win}$, +${expG} XP 🌟🌟🌟`;
-                setTimeout(() => document.getElementById("msg").classList.remove("result-legend"), 2800);
-            } else {
-                const multi = {"🍒": 2, "🍋": 2, "🍊": 2, "🍉": 2.5, "🍎": 3, "🍓": 2.5, "🍑": 2}[row[0]] || 2;
-                win = Math.floor(CURRENT_BET * multi * multiplier);
+                document.getElementById("msg").classList.add("result-legend"); 
+                document.getElementById("msg").innerHTML = `🌟🌟🌟 ЛЕГЕНДАРКА! +${win}$, +${expG} XP 🌟🌟🌟`; 
+                setTimeout(() => document.getElementById("msg").classList.remove("result-legend"), 2800); 
+            } else { 
+                const multi = { "🍒":2,"🍋":2,"🍊":2,"🍉":2.5,"🍎":3,"🍓":2.5,"🍑":2 }[row[0]] || 2; 
+                win = Math.floor(CURRENT_BET * multi * multiplier); 
                 expG = 25 * multiplier;
-                document.getElementById("msg").classList.add("result-win");
-                document.getElementById("msg").innerHTML = `🎉 ПОБЕДА! +${win}$, +${expG} XP 🎉`;
-                setTimeout(() => document.getElementById("msg").classList.remove("result-win"), 2000);
+                document.getElementById("msg").classList.add("result-win"); 
+                document.getElementById("msg").innerHTML = `🎉 ПОБЕДА! +${win}$, +${expG} XP 🎉`; 
+                setTimeout(() => document.getElementById("msg").classList.remove("result-win"), 2000); 
             }
             player.money += win;
-        } else {
+        } else { 
             expG = 8 * multiplier;
-            document.getElementById("msg").classList.add("result-lose");
-            document.getElementById("msg").innerHTML = `💔 ПРОИГРЫШ! -${CURRENT_BET}$, +${expG} XP 💔`;
-            setTimeout(() => document.getElementById("msg").classList.remove("result-lose"), 1500);
+            document.getElementById("msg").classList.add("result-lose"); 
+            document.getElementById("msg").innerHTML = `💔 ПРОИГРЫШ! -${CURRENT_BET}$, +${expG} XP 💔`; 
+            setTimeout(() => document.getElementById("msg").classList.remove("result-lose"), 1500); 
         }
         addExp(expG);
         updateUI();
         saveGame();
         checkAchievements();
     }
-
+    
     // ========== СОБЫТИЯ УРОВНЕЙ ==========
     const levelEvents = {
-        2: {
-            title: "🌲 ВСТРЕЧА В ЛЕСУ", text: "Бобёр в смокинге предлагает сделку", choices: [
-                {txt: "🃏 Сыграть", eff: (p) => {p.money += 30; return "+30$";}},
-                {txt: "🍺 Угостить", eff: (p) => {p.money -= 15; p.exp += 15; return "+15 exp";}},
-                {txt: "🏃 Убежать", eff: (p) => {p.exp += 5; return "+5 exp";}}
-            ]
-        },
-        3: {
-            title: "💀 ПРОКЛЯТЫЙ АВТОМАТ", text: "Старый слот манит...", choices: [
-                {txt: "🎰 Крутануть", eff: (p) => {if (Math.random() < 0.5) {p.money += 80; return "+80$";} else {p.money -= 40; p.hasCursedCoin = true; return "Проклятие!";}}},
-                {txt: "🔨 Разбить", eff: (p) => {p.money += 20; p.exp += 10; return "+20$, +10 exp";}},
-                {txt: "🙏 Помолиться", eff: (p) => {p.exp += 20; return "+20 exp";}}
-            ]
-        },
-        4: {
-            title: "🔮 ОРАКУЛ-КОШКА", text: "Кошка предсказывает...", choices: [
-                {txt: "✨ Амулет за 30$", eff: (p) => {p.money -= 30; p.hasAmulet = true; return "Амулет!";}},
-                {txt: "🐟 Рыба", eff: (p) => {p.exp += 25; return "+25 exp";}},
-                {txt: "🤨 Игнор", eff: (p) => {p.money -= 10; return "-10$";}}
-            ]
-        },
-        5: {
-            title: "🏛️ ПОДЗЕМНОЕ КАЗИНО", text: "Гоблины зовут...", choices: [
-                {txt: "🕳️ Спуститься", eff: (p) => {p.money += 50; p.exp += 15; return "+50$, +15 exp";}},
-                {txt: "💣 Граната", eff: (p) => {p.money += 100; p.exp += 5; return "+100$, +5 exp";}},
-                {txt: "📞 Полиция", eff: (p) => {p.exp += 30; return "+30 exp";}}
-            ]
-        },
-        6: {
-            title: "🎭 ТЕАТР АБСУРДА", text: "Три Поросёнка играют в слоты", choices: [
-                {txt: "🎭 Стать актёром", eff: (p) => {p.money += 40; p.exp += 20; return "+40$, +20 exp";}},
-                {txt: "🍿 Смотреть", eff: (p) => {p.exp += 25; return "+25 exp";}},
-                {txt: "🔥 Поджечь", eff: (p) => {p.money -= 30; p.exp += 10; return "-30$, +10 exp";}}
-            ]
-        },
-        7: {
-            title: "🃏 НАПЁРСТКИ", text: "Мошенник ждёт", choices: [
-                {txt: "🎲 Играть", eff: (p) => {if (Math.random() < 0.4) {p.money += 150; return "+150$";} else {p.money -= 50; return "-50$";}}},
-                {txt: "🥊 Удар", eff: (p) => {p.money += 70; p.exp += 10; return "+70$, +10 exp";}},
-                {txt: "📸 Фото", eff: (p) => {p.exp += 35; return "+35 exp";}}
-            ]
-        },
-        8: {
-            title: "🍄 ГРИБНАЯ ПОЛЯНА", text: "Поющие грибы танцуют", choices: [
-                {txt: "🍄 Съесть", eff: (p) => {p.money += 100; p.exp += 30; return "+100$, +30 exp";}},
-                {txt: "📝 Рисовать", eff: (p) => {p.exp += 45; return "+45 exp";}},
-                {txt: "🔥 Сжечь", eff: (p) => {p.money -= 20; return "-20$";}}
-            ]
-        },
-        9: {
-            title: "👑 АНГЕЛ И ДЕМОН", text: "Небесные силы спорят о тебе", choices: [
-                {txt: "😇 Ангел", eff: (p) => {p.money += 200; p.hasAmulet = true; return "+200$, амулет!";}},
-                {txt: "😈 Демон", eff: (p) => {p.money += 300; p.hasCursedCoin = true; return "+300$, проклятие!";}},
-                {txt: "🍕 Пицца", eff: (p) => {p.money += 50; p.exp += 50; return "+50$, +50 exp";}}
-            ]
-        },
-        10: {
-            title: "🌟 СТАТУС: ОПЫТНЫЙ АВАНТЮРИСТ", text: "Ты достиг 10 уровня! Мир уважает тебя...", choices: [
-                {txt: "🎉 Отпраздновать", eff: (p) => {p.money += 100; p.exp += 50; return "+100$, +50 exp";}},
-                {txt: "🙏 Продолжить путь", eff: (p) => {p.exp += 80; return "+80 exp";}},
-                {txt: "🍺 Выпить за это", eff: (p) => {p.money += 50; return "+50$";}}
-            ]
-        },
-        11: {
-            title: "🚀 ПОРТАЛ В КОСМОС", text: "Ты открыл доступ к космическим мирам!", choices: [
-                {txt: "✨ Исследовать", eff: (p) => {p.money += 150; p.exp += 40; return "+150$, +40 exp";}},
-                {txt: "👽 Встретить пришельцев", eff: (p) => {p.money += 100; p.exp += 30; return "+100$, +30 exp";}},
-                {txt: "🚀 Вернуться", eff: (p) => {p.exp += 20; return "+20 exp";}}
-            ]
-        },
-        12: {
-            title: "💜 КИБЕР-ПАНКОВАЯ ВЕЧЕРИНКА", text: "Неоновые огни слепят глаза...", choices: [
-                {txt: "🎧 Танцевать", eff: (p) => {p.money += 120; p.exp += 35; return "+120$, +35 exp";}},
-                {txt: "💻 Взломать банкомат", eff: (p) => {if (Math.random() < 0.5) {p.money += 300; return "+300$";} else {p.money -= 150; return "-150$";}}},
-                {txt: "🍺 Пить кибер-пиво", eff: (p) => {p.exp += 25; return "+25 exp";}}
-            ]
-        },
-        13: {
-            title: "⛪ ТАЙНЫ ЦЕРКВИ", text: "Древние секреты открываются...", choices: [
-                {txt: "🕯️ Помолиться", eff: (p) => {p.exp += 50; return "+50 exp";}},
-                {txt: "💰 Пожертвовать 200$", eff: (p) => {p.money -= 200; p.exp += 100; return "-200$, +100 exp";}},
-                {txt: "🔥 Сжечь икону", eff: (p) => {p.money += 150; p.exp += 20; return "+150$, +20 exp (грех!)";}}
-            ]
-        },
-        14: {
-            title: "🎰 ДЖЕКПОТ НА ГОРИЗОНТЕ", text: "Удача улыбается тебе!", choices: [
-                {txt: "🍀 Поверить в удачу", eff: (p) => {p.money += 200; p.exp += 60; return "+200$, +60 exp";}},
-                {txt: "🎲 Сыграть ва-банк", eff: (p) => {if (Math.random() < 0.6) {p.money += 500; return "+500$";} else {p.money -= 200; return "-200$";}}},
-                {txt: "🙏 Попросить богов", eff: (p) => {p.exp += 40; return "+40 exp";}}
-            ]
-        },
-        15: {
-            title: "👑 СТАТУС: ЛЕГЕНДА КАЗИНО", text: "Твоё имя знают все!", choices: [
-                {txt: "🎉 Устроить праздник", eff: (p) => {p.money += 300; p.exp += 80; return "+300$, +80 exp";}},
-                {txt: "🍀 Раздать автографы", eff: (p) => {p.money += 100; p.exp += 50; return "+100$, +50 exp";}},
-                {txt: "🎰 Продолжать играть", eff: (p) => {p.exp += 100; return "+100 exp";}}
-            ]
-        },
-        16: {
-            title: "🌸 ЦВЕТУЩАЯ ЦЕРКОВЬ", text: "Ты достиг святых земель!", choices: [
-                {txt: "🙏 Благословение", eff: (p) => {p.money += 250; p.exp += 70; return "+250$, +70 exp";}},
-                {txt: "💰 Строить храм", eff: (p) => {p.money -= 500; p.exp += 200; return "-500$, +200 exp";}},
-                {txt: "🍷 Испить святой воды", eff: (p) => {p.exp += 60; return "+60 exp";}}
-            ]
-        },
-        17: {
-            title: "🐉 ДРАКОН УДАЧИ", text: "Мифическое существо предлагает сделку", choices: [
-                {txt: "🔥 Принять вызов", eff: (p) => {if (Math.random() < 0.5) {p.money += 800; return "+800$";} else {p.money -= 300; return "-300$";}}},
-                {txt: "🐟 Дать рыбу", eff: (p) => {p.money += 200; p.exp += 60; return "+200$, +60 exp";}},
-                {txt: "🏃 Убежать", eff: (p) => {p.exp += 30; return "+30 exp";}}
-            ]
-        },
-        18: {
-            title: "⭐ ЗВЕЗДА СЛОТОВ", text: "Ты почти у цели!", choices: [
-                {txt: "✨ Принять судьбу", eff: (p) => {p.money += 400; p.exp += 100; return "+400$, +100 exp";}},
-                {txt: "🎰 Последний спин", eff: (p) => {p.money += 200; p.exp += 80; return "+200$, +80 exp";}},
-                {txt: "🍺 Отдохнуть", eff: (p) => {p.exp += 50; return "+50 exp";}}
-            ]
-        }
+        2: { title: "🌲 ВСТРЕЧА В ЛЕСУ", text: "Бобёр в смокинге предлагает сделку", choices: [
+            { txt: "🃏 Сыграть", eff: (p) => { p.money += 30; return "+30$"; } },
+            { txt: "🍺 Угостить", eff: (p) => { p.money -= 15; p.exp += 15; return "+15 exp"; } },
+            { txt: "🏃 Убежать", eff: (p) => { p.exp += 5; return "+5 exp"; } }
+        ] },
+        3: { title: "💀 ПРОКЛЯТЫЙ АВТОМАТ", text: "Старый слот манит...", choices: [
+            { txt: "🎰 Крутануть", eff: (p) => { if(Math.random()<0.5){ p.money+=80; return "+80$"; } else { p.money-=40; p.hasCursedCoin=true; return "Проклятие!"; } } },
+            { txt: "🔨 Разбить", eff: (p) => { p.money+=20; p.exp+=10; return "+20$, +10 exp"; } },
+            { txt: "🙏 Помолиться", eff: (p) => { p.exp+=20; return "+20 exp"; } }
+        ] },
+        4: { title: "🔮 ОРАКУЛ-КОШКА", text: "Кошка предсказывает...", choices: [
+            { txt: "✨ Амулет за 30$", eff: (p) => { p.money-=30; p.hasAmulet=true; return "Амулет!"; } },
+            { txt: "🐟 Рыба", eff: (p) => { p.exp+=25; return "+25 exp"; } },
+            { txt: "🤨 Игнор", eff: (p) => { p.money-=10; return "-10$"; } }
+        ] },
+        5: { title: "🏛️ ПОДЗЕМНОЕ КАЗИНО", text: "Гоблины зовут...", choices: [
+            { txt: "🕳️ Спуститься", eff: (p) => { p.money+=50; p.exp+=15; return "+50$, +15 exp"; } },
+            { txt: "💣 Граната", eff: (p) => { p.money+=100; p.exp+=5; return "+100$, +5 exp"; } },
+            { txt: "📞 Полиция", eff: (p) => { p.exp+=30; return "+30 exp"; } }
+        ] },
+        6: { title: "🎭 ТЕАТР АБСУРДА", text: "Три Поросёнка играют в слоты", choices: [
+            { txt: "🎭 Стать актёром", eff: (p) => { p.money+=40; p.exp+=20; return "+40$, +20 exp"; } },
+            { txt: "🍿 Смотреть", eff: (p) => { p.exp+=25; return "+25 exp"; } },
+            { txt: "🔥 Поджечь", eff: (p) => { p.money-=30; p.exp+=10; return "-30$, +10 exp"; } }
+        ] },
+        7: { title: "🃏 НАПЁРСТКИ", text: "Мошенник ждёт", choices: [
+            { txt: "🎲 Играть", eff: (p) => { if(Math.random()<0.4){ p.money+=150; return "+150$"; } else { p.money-=50; return "-50$"; } } },
+            { txt: "🥊 Удар", eff: (p) => { p.money+=70; p.exp+=10; return "+70$, +10 exp"; } },
+            { txt: "📸 Фото", eff: (p) => { p.exp+=35; return "+35 exp"; } }
+        ] },
+        8: { title: "🍄 ГРИБНАЯ ПОЛЯНА", text: "Поющие грибы танцуют", choices: [
+            { txt: "🍄 Съесть", eff: (p) => { p.money+=100; p.exp+=30; return "+100$, +30 exp"; } },
+            { txt: "📝 Рисовать", eff: (p) => { p.exp+=45; return "+45 exp"; } },
+            { txt: "🔥 Сжечь", eff: (p) => { p.money-=20; return "-20$"; } }
+        ] },
+        9: { title: "👑 АНГЕЛ И ДЕМОН", text: "Небесные силы спорят о тебе", choices: [
+            { txt: "😇 Ангел", eff: (p) => { p.money+=200; p.hasAmulet=true; return "+200$, амулет!"; } },
+            { txt: "😈 Демон", eff: (p) => { p.money+=300; p.hasCursedCoin=true; return "+300$, проклятие!"; } },
+            { txt: "🍕 Пицца", eff: (p) => { p.money+=50; p.exp+=50; return "+50$, +50 exp"; } }
+        ] },
+        10: { title: "🌟 СТАТУС: ОПЫТНЫЙ АВАНТЮРИСТ", text: "Ты достиг 10 уровня! Мир уважает тебя...", choices: [
+            { txt: "🎉 Отпраздновать", eff: (p) => { p.money+=100; p.exp+=50; return "+100$, +50 exp"; } },
+            { txt: "🙏 Продолжить путь", eff: (p) => { p.exp+=80; return "+80 exp"; } },
+            { txt: "🍺 Выпить за это", eff: (p) => { p.money+=50; return "+50$"; } }
+        ] },
+        11: { title: "🚀 ПОРТАЛ В КОСМОС", text: "Ты открыл доступ к космическим мирам!", choices: [
+            { txt: "✨ Исследовать", eff: (p) => { p.money+=150; p.exp+=40; return "+150$, +40 exp"; } },
+            { txt: "👽 Встретить пришельцев", eff: (p) => { p.money+=100; p.exp+=30; return "+100$, +30 exp"; } },
+            { txt: "🚀 Вернуться", eff: (p) => { p.exp+=20; return "+20 exp"; } }
+        ] },
+        12: { title: "💜 КИБЕР-ПАНКОВАЯ ВЕЧЕРИНКА", text: "Неоновые огни слепят глаза...", choices: [
+            { txt: "🎧 Танцевать", eff: (p) => { p.money+=120; p.exp+=35; return "+120$, +35 exp"; } },
+            { txt: "💻 Взломать банкомат", eff: (p) => { if(Math.random()<0.5){ p.money+=300; return "+300$"; } else { p.money-=150; return "-150$"; } } },
+            { txt: "🍺 Пить кибер-пиво", eff: (p) => { p.exp+=25; return "+25 exp"; } }
+        ] },
+        13: { title: "⛪ ТАЙНЫ ЦЕРКВИ", text: "Древние секреты открываются...", choices: [
+            { txt: "🕯️ Помолиться", eff: (p) => { p.exp+=50; return "+50 exp"; } },
+            { txt: "💰 Пожертвовать 200$", eff: (p) => { p.money-=200; p.exp+=100; return "-200$, +100 exp"; } },
+            { txt: "🔥 Сжечь икону", eff: (p) => { p.money+=150; p.exp+=20; return "+150$, +20 exp (грех!)"; } }
+        ] },
+        14: { title: "🎰 ДЖЕКПОТ НА ГОРИЗОНТЕ", text: "Удача улыбается тебе!", choices: [
+            { txt: "🍀 Поверить в удачу", eff: (p) => { p.money+=200; p.exp+=60; return "+200$, +60 exp"; } },
+            { txt: "🎲 Сыграть ва-банк", eff: (p) => { if(Math.random()<0.6){ p.money+=500; return "+500$"; } else { p.money-=200; return "-200$"; } } },
+            { txt: "🙏 Попросить богов", eff: (p) => { p.exp+=40; return "+40 exp"; } }
+        ] },
+        15: { title: "👑 СТАТУС: ЛЕГЕНДА КАЗИНО", text: "Твоё имя знают все!", choices: [
+            { txt: "🎉 Устроить праздник", eff: (p) => { p.money+=300; p.exp+=80; return "+300$, +80 exp"; } },
+            { txt: "🍀 Раздать автографы", eff: (p) => { p.money+=100; p.exp+=50; return "+100$, +50 exp"; } },
+            { txt: "🎰 Продолжать играть", eff: (p) => { p.exp+=100; return "+100 exp"; } }
+        ] },
+        16: { title: "🌸 ЦВЕТУЩАЯ ЦЕРКОВЬ", text: "Ты достиг святых земель!", choices: [
+            { txt: "🙏 Благословение", eff: (p) => { p.money+=250; p.exp+=70; return "+250$, +70 exp"; } },
+            { txt: "💰 Строить храм", eff: (p) => { p.money-=500; p.exp+=200; return "-500$, +200 exp"; } },
+            { txt: "🍷 Испить святой воды", eff: (p) => { p.exp+=60; return "+60 exp"; } }
+        ] },
+        17: { title: "🐉 ДРАКОН УДАЧИ", text: "Мифическое существо предлагает сделку", choices: [
+            { txt: "🔥 Принять вызов", eff: (p) => { if(Math.random()<0.5){ p.money+=800; return "+800$"; } else { p.money-=300; return "-300$"; } } },
+            { txt: "🐟 Дать рыбу", eff: (p) => { p.money+=200; p.exp+=60; return "+200$, +60 exp"; } },
+            { txt: "🏃 Убежать", eff: (p) => { p.exp+=30; return "+30 exp"; } }
+        ] },
+        18: { title: "⭐ ЗВЕЗДА СЛОТОВ", text: "Ты почти у цели!", choices: [
+            { txt: "✨ Принять судьбу", eff: (p) => { p.money+=400; p.exp+=100; return "+400$, +100 exp"; } },
+            { txt: "🎰 Последний спин", eff: (p) => { p.money+=200; p.exp+=80; return "+200$, +80 exp"; } },
+            { txt: "🍺 Отдохнуть", eff: (p) => { p.exp+=50; return "+50 exp"; } }
+        ] }
     };
-
+    
     function showLevelUpEvent(newLevel) {
         const event = levelEvents[newLevel];
         if (!event) return;
@@ -1892,8 +1340,7 @@
         modal.style.display = "flex";
         updateUI();
     }
-
-    // ========== БОСС ==========
+    
     function startBossFight() {
         const modal = document.getElementById("storyModal");
         const modalText = document.getElementById("modalText");
@@ -1903,34 +1350,41 @@
         <p>💰 У тебя: ${player.money}$ | 🛡️ Амулет: ${player.hasAmulet ? "✅" : "❌"}</p>
         <p>⚔️ <strong>Можно сражаться даже с 0$!</strong> Просто выбери АТАКУ или МАГИЮ.</p>
         <p>💎 Откуп не обязателен, но может помочь.</p>`;
-
-        modalChoices.innerHTML = `
-            <button class="choice-btn" onclick="fightBossAction('attack')">⚔️ АТАКОВАТЬ (бесплатно)</button>
-            <button class="choice-btn" onclick="fightBossAction('magic')">🔮 МАГИЯ (бесплатно)</button>
-            <button class="choice-btn" onclick="fightBossAction('bribe')">💰 ПОДКУПИТЬ (2000$, если есть)</button>
-            <button class="choice-btn" onclick="closeModal()">😨 ПОКА НЕ ГОТОВ</button>
-        `;
+        
+        if (player.money >= 10000) {
+            modalChoices.innerHTML = `
+                <button class="choice-btn" onclick="fightBossAction('attack')">⚔️ АТАКОВАТЬ (бесплатно)</button>
+                <button class="choice-btn" onclick="fightBossAction('magic')">🔮 МАГИЯ (бесплатно)</button>
+                <button class="choice-btn" onclick="fightBossAction('bribe')">💰 ПОДКУПИТЬ (2000$, если есть)</button>
+                <button class="choice-btn" onclick="closeModal()">😨 ПОКА НЕ ГОТОВ</button>
+            `;
+        } else {
+            modalChoices.innerHTML = `<button class="choice-btn" onclick="closeModal()">😭 НЕТ 10000$... ИДТИ КОПИТЬ</button>`;
+        }
     }
-
-    window.fightBossAction = function (action) {
+    
+    window.fightBossAction = function(action) {
         const modal = document.getElementById("storyModal");
         const modalText = document.getElementById("modalText");
         const modalChoices = document.getElementById("modalChoices");
+        let cost = 0;
         let success = false;
         let message = "";
-        let cost = 0;
-
+        
         if (action === 'attack') {
+            cost = 0;
             let chance = 0.3 + (player.hasAmulet ? 0.2 : 0) - (player.hasCursedCoin ? 0.1 : 0);
             success = Math.random() < chance;
             message = success ? "Твоя атака сразила Бога Слотов!" : "Бог Слотов отразил атаку и контратаковал!";
         } else if (action === 'magic') {
+            cost = 0;
             let chance = 0.4 + (player.exp / 800);
             success = Math.random() < chance;
             message = success ? "Магический взрыв уничтожил Бога Слотов!" : "Заклинание отскочило и ударило по тебе!";
         } else {
             if (player.money >= 2000) {
-                player.money -= 2000;
+                cost = 2000;
+                player.money -= cost;
                 success = true;
                 message = "Бог Слотов взял деньги и ушёл в отпуск на Гавайи! ПОБЕДА!";
             } else {
@@ -1938,7 +1392,7 @@
                 message = "Бог Слотов оскорбился: 'Это всё?! Да это даже на кофе не хватит!' и пнул тебя.";
             }
         }
-
+        
         if (success) {
             player.defeatedBoss = true;
             gameCompleted = true;
@@ -1958,13 +1412,13 @@
         saveGame();
         checkAchievements();
     };
-
-    window.closeModal = function () {
+    
+    window.closeModal = function() { 
         document.getElementById("storyModal").style.display = "none";
         isModalOpen = false;
         checkAndShowPendingEvent();
     };
-
+    
     function exitToMenu() {
         if (confirm("Выйти в главное меню? Прогресс сохранится.")) {
             saveGame();
@@ -1976,15 +1430,13 @@
             }
         }
     }
-
+    
     function resetProgress() {
         if (confirm("⚠️ СБРОСИТЬ ВЕСЬ ПРОГРЕСС? Всё начнётся заново!")) {
             localStorage.removeItem("nekoSlotSave");
             localStorage.removeItem("nekoAchievements");
-            player = {
-                level: 1, money: 200, exp: 0, hasAmulet: false, hasCursedCoin: false, defeatedBoss: false, currentTheme: "forest",
-                legendDisabled: false, badReputation: false, smallWins: false, highRisk: false
-            };
+            player = { level:1, money:200, exp:0, hasAmulet:false, hasCursedCoin:false, defeatedBoss:false, currentTheme:"forest",
+                legendDisabled: false, badReputation: false, smallWins: false, highRisk: false };
             spinCount = 0;
             legendCount = 0;
             jobCount = 0;
@@ -1993,7 +1445,13 @@
             isInJail = false;
             for (let key in achievements) achievements[key].unlocked = false;
             canSave = false;
-            for (let i = 0; i < 3; i++) document.getElementById(`s${i}`).innerText = FRUITS[Math.floor(Math.random() * FRUITS.length)];
+            // ПРИНУДИТЕЛЬНО ПРИМЕНЯЕМ ТЕМУ ЛЕСА ПРИ СБРОСЕ
+            document.body.className = "theme-forest";
+            const container = document.getElementById("bgEffects");
+            if (container) {
+                container.innerHTML = effects.forest();
+            }
+            for(let i=0;i<3;i++) document.getElementById(`s${i}`).innerText = FRUITS[Math.floor(Math.random()*FRUITS.length)];
             updateUI();
             updateAchievementsUI();
             updateModifiersUI();
@@ -2004,44 +1462,21 @@
             showPrologue();
         }
     }
-
+    
     // ========== ФОНЫ ==========
     const effects = {
-        forest: () => {
-            let h = '';
-            for (let i = 0; i < 8; i++) h += `<div class="tree" style="left:${Math.random() * 100}%; bottom:${Math.random() * 40}%; font-size:${Math.random() * 3 + 2}rem">${['🌲', '🌳', '🎄'][i % 3]}</div>`;
-            for (let i = 0; i < 20; i++) h += `<div class="leaf" style="left:${Math.random() * 100}%; animation-delay:${Math.random() * 8}s">${['🍃', '🌿', '🍂'][i % 3]}</div>`;
-            return h;
-        },
-        cyberpunk: () => {
-            let h = '';
-            for (let i = 0; i < 5; i++) h += `<div class="neon-line" style="top:${i * 15 + 10}%"></div>`;
-            for (let i = 0; i < 12; i++) h += `<div class="glitch" style="left:${Math.random() * 100}%; top:${Math.random() * 100}%; font-size:${Math.random() * 2 + 1}rem; color:${['#0ff', '#f0f', '#ff0'][i % 3]}">${['#', '%', '&', '@', '$'][i % 5]}</div>`;
-            return h;
-        },
-        space: () => {
-            let h = '';
-            for (let i = 0; i < 100; i++) h += `<div class="star" style="left:${Math.random() * 100}%; top:${Math.random() * 100}%; width:${Math.random() * 2 + 1}px; height:${Math.random() * 2 + 1}px;"></div>`;
-            for (let i = 0; i < 4; i++) h += `<div class="shooting" style="top:${Math.random() * 50}%; left:100%"></div>`;
-            return h;
-        },
-        church: () => {
-            let h = '';
-            for (let i = 0; i < 5; i++) h += `<div class="stained" style="left:${Math.random() * 100}%; top:${Math.random() * 100}%; width:${Math.random() * 150 + 80}px; height:${Math.random() * 150 + 80}px"></div>`;
-            for (let i = 0; i < 4; i++) h += `<div class="cross" style="left:${Math.random() * 80 + 10}%; top:${Math.random() * 60 + 20}%; font-size:${Math.random() * 3 + 2}rem">✝</div>`;
-            return h;
-        }
+        forest: () => { let h=''; for(let i=0;i<8;i++) h+=`<div class="tree" style="left:${Math.random()*100}%; bottom:${Math.random()*40}%; font-size:${Math.random()*3+2}rem">${['🌲','🌳','🎄'][i%3]}</div>`; for(let i=0;i<20;i++) h+=`<div class="leaf" style="left:${Math.random()*100}%; animation-delay:${Math.random()*8}s">${['🍃','🌿','🍂'][i%3]}</div>`; return h; },
+        cyberpunk: () => { let h=''; for(let i=0;i<5;i++) h+=`<div class="neon-line" style="top:${i*15+10}%"></div>`; for(let i=0;i<12;i++) h+=`<div class="glitch" style="left:${Math.random()*100}%; top:${Math.random()*100}%; font-size:${Math.random()*2+1}rem; color:${['#0ff','#f0f','#ff0'][i%3]}">${['#','%','&','@','$'][i%5]}</div>`; return h; },
+        space: () => { let h=''; for(let i=0;i<100;i++) h+=`<div class="star" style="left:${Math.random()*100}%; top:${Math.random()*100}%; width:${Math.random()*2+1}px; height:${Math.random()*2+1}px;"></div>`; for(let i=0;i<4;i++) h+=`<div class="shooting" style="top:${Math.random()*50}%; left:100%"></div>`; return h; },
+        church: () => { let h=''; for(let i=0;i<5;i++) h+=`<div class="stained" style="left:${Math.random()*100}%; top:${Math.random()*100}%; width:${Math.random()*150+80}px; height:${Math.random()*150+80}px"></div>`; for(let i=0;i<4;i++) h+=`<div class="cross" style="left:${Math.random()*80+10}%; top:${Math.random()*60+20}%; font-size:${Math.random()*3+2}rem">✝</div>`; return h; }
     };
-
+    
     function applyTheme(theme) {
         if (!canSave) return;
         if (player.level < THEME_UNLOCK[theme]) return;
         document.body.className = `theme-${theme}`;
         const container = document.getElementById("bgEffects");
-        if (container) {
-            container.innerHTML = "";
-            if (effects[theme]) container.innerHTML = effects[theme]();
-        }
+        if (container) { container.innerHTML = ""; if (effects[theme]) container.innerHTML = effects[theme](); }
         player.currentTheme = theme;
         saveGame();
         checkAchievements();
@@ -2054,7 +1489,7 @@
         }, 3000);
         updateUI();
     }
-
+    
     function showPrologue() {
         const modal = document.getElementById("storyModal");
         const modalText = document.getElementById("modalText");
@@ -2069,6 +1504,7 @@
         <p>• НОВЫЕ ЛОКАЦИИ открываются на 6, 11 и 16 уровне — АВТОМАТИЧЕСКИЙ ПЕРЕХОД!</p>
         <p>• ⚠️ ВЕРНУТЬСЯ НА СТАРУЮ ЛОКАЦИЮ НЕЛЬЗЯ! Обратной дороги нет! ⚠️</p>
         <p>🎭 На уровнях <strong>2-18</strong> — сюжетные события!</p>
+        <p>🔊 Звук нажатия на кнопку КРУТИТЬ!</p>
         <p>🔥 Удачи, авантюрист!</p>`;
         modalChoices.innerHTML = `<button class="choice-btn" id="prologStartBtn">🎰 ИГРАТЬ!</button>`;
         modal.style.display = "flex";
@@ -2082,37 +1518,37 @@
             saveAchievements();
         };
     }
-
+    
     // ========== ЗАПУСК ==========
     function startGame() {
         document.getElementById("mainMenu").style.display = "none";
         document.getElementById("gameContainer").style.display = "block";
         init();
     }
-
+    
     function toggleAchievements() {
         const panel = document.getElementById("achievementsPanel");
         panel.style.display = panel.style.display === "block" ? "none" : "block";
         updateAchievementsUI();
     }
-
+    
     function toggleSettings() {
         const panel = document.getElementById("settingsPanel");
         panel.style.display = panel.style.display === "block" ? "none" : "block";
     }
-
+    
     function init() {
         loadAchievements();
         loadAudioSettings();
-
+        
         document.getElementById("musicVol").oninput = (e) => updateMusicVolume(parseInt(e.target.value));
         document.getElementById("sfxVol").oninput = (e) => updateSfxVolume(parseInt(e.target.value));
-
+        
         const hasSave = localStorage.getItem("nekoSlotSave");
         if (hasSave) {
             canSave = true;
             loadGame();
-            // Принудительно обновляем блокировку и активную тему
+            // Принудительно обновляем UI темы
             updateThemeButtonsWithLock();
             document.querySelectorAll(".theme-btn").forEach(btn => {
                 if (btn.dataset.theme === player.currentTheme) btn.classList.add("active");
@@ -2132,25 +1568,25 @@
             playMusic();
         } else {
             canSave = false;
+            // ПРИНУДИТЕЛЬНО ПРИМЕНЯЕМ ТЕМУ ЛЕСА ПРИ ПЕРВОМ ЗАПУСКЕ — БЕЛОГО ФОНА НЕ БУДЕТ!
             document.body.className = "theme-forest";
             const container = document.getElementById("bgEffects");
             if (container) {
                 container.innerHTML = effects.forest();
             }
-            for (let i = 0; i < 3; i++) document.getElementById(`s${i}`).innerText = FRUITS[Math.floor(Math.random() * FRUITS.length)];
+            for(let i=0;i<3;i++) document.getElementById(`s${i}`).innerText = FRUITS[Math.floor(Math.random()*FRUITS.length)];
             showPrologue();
         }
-
+        
         document.getElementById("payBailBtn").onclick = payBail;
         document.getElementById("applyModifiersBtn").onclick = applySelectedModifiers;
-
+        
         document.querySelectorAll(".theme-btn").forEach(btn => {
             btn.onclick = () => {
                 const theme = btn.dataset.theme;
                 const currentIndex = themeOrder.indexOf(player.currentTheme);
                 const clickedIndex = themeOrder.indexOf(theme);
-
-                // ЗАПРЕТ НА ВОЗВРАТ К СТАРЫМ ЛОКАЦИЯМ
+                
                 if (clickedIndex < currentIndex) {
                     document.getElementById("msg").innerHTML = `🚫 НЕЛЬЗЯ ВЕРНУТЬСЯ В ПРОШЛОЕ! Ты уже покорил локацию выше. Дорога назад закрыта навсегда! 🚫`;
                     setTimeout(() => {
@@ -2160,7 +1596,7 @@
                     }, 3000);
                     return;
                 }
-
+                
                 if (player.level >= THEME_UNLOCK[theme]) {
                     document.querySelectorAll(".theme-btn").forEach(b => b.classList.remove("active"));
                     btn.classList.add("active");
@@ -2175,17 +1611,15 @@
                 }
             };
         });
-
+        
         document.getElementById("resetBtn").onclick = resetProgress;
         document.getElementById("exitBtn").onclick = exitToMenu;
         document.getElementById("spinBtn").onclick = spin;
         document.getElementById("jobBtn").onclick = startRandomJob;
-        document.getElementById("jobExitBtn").onclick = () => {
-            if (isWorking) endWork();
-        };
+        document.getElementById("jobExitBtn").onclick = () => { if (isWorking) endWork(); };
         updateUI();
     }
-
+    
     document.getElementById("playBtn").onclick = startGame;
     document.getElementById("achievementsBtn").onclick = toggleAchievements;
     document.getElementById("settingsBtn").onclick = toggleSettings;
