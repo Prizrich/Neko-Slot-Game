@@ -23,7 +23,6 @@
         body.theme-cyberpunk { background: linear-gradient(135deg, #0a0a1a, #1a0a2a); }
         body.theme-church { background: linear-gradient(135deg, #2a1a3a, #1a0a2a); }
 
-        /* СТАРТОВОЕ МЕНЮ */
         .main-menu {
             position: fixed;
             top: 0;
@@ -233,7 +232,12 @@
             color: #ffefc0;
             transition: all 0.2s;
         }
-        .theme-btn.locked { opacity: 0.5; cursor: not-allowed; pointer-events: none; filter: grayscale(0.3); }
+        .theme-btn.locked { 
+            opacity: 0.5; 
+            cursor: not-allowed; 
+            pointer-events: none; 
+            filter: grayscale(0.3);
+        }
         .theme-btn.permanently-locked {
             opacity: 0.3;
             cursor: not-allowed;
@@ -297,6 +301,7 @@
             box-shadow: 0 4px 0 #7a4a1a;
         }
         button:active { transform: translateY(2px); box-shadow: 0 2px 0 #7a4a1a; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
         .result-banner {
             background: #0f0e0aee;
             border-radius: 40px;
@@ -424,6 +429,19 @@
         ::-webkit-scrollbar-thumb { background: linear-gradient(135deg, #ffcc66, #ffaa44); border-radius: 10px; }
         * { scrollbar-width: thin; scrollbar-color: #ffaa44 rgba(0,0,0,0.4); }
         
+        /* Фикс белого задника для заблокированных локаций */
+        button:disabled, 
+        .theme-btn:disabled, 
+        .theme-btn[disabled],
+        [disabled] {
+            background: rgba(20, 20, 20, 0.6) !important;
+            background-color: rgba(20, 20, 20, 0.6) !important;
+            color: rgba(255, 255, 255, 0.3) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            opacity: 0.5 !important;
+            box-shadow: none !important;
+        }
+        
         @media (max-width: 550px) { 
             .slot-cell { width: 70px; height: 70px; font-size: 2rem; } 
             .theme-btn { font-size: 0.7rem; padding: 3px 10px; } 
@@ -530,85 +548,8 @@
 </div>
 
 <script>
-    // ========== ГЛОБАЛЬНЫЕ ЗВУКИ ==========
-    let bgMusic = null;
-    let levelUpSound = null;
-    let winSound = null;
-    let clickSound = null;
-    let audioInitialized = false;
-    let currentMusicVol = 30;
-    let currentSfxVol = 70;
-    
-    window.playSFX = function(type) {
-        if (!audioInitialized) return;
-        let sound = null;
-        if (type === 'level_up') sound = levelUpSound;
-        if (type === 'win_slot') sound = winSound;
-        if (type === 'click') sound = clickSound;
-        if (sound) {
-            try {
-                const clone = sound.cloneNode();
-                clone.volume = Math.max(0, Math.min(1, currentSfxVol / 100));
-                clone.play().catch(e => console.log("SFX play error:", e));
-            } catch(e) { console.log("SFX error"); }
-        }
-    };
-    
-    function loadAudioFiles() {
-        try {
-            bgMusic = new Audio('sounds/bg_forest.mp3');
-            bgMusic.loop = true;
-            bgMusic.volume = Math.max(0, Math.min(1, currentMusicVol / 100));
-        } catch(e) { console.log("Music load error"); }
-        try {
-            levelUpSound = new Audio('sounds/level_up.mp3');
-            winSound = new Audio('sounds/win_slot.mp3');
-            clickSound = new Audio('sounds/click.mp3');
-            levelUpSound.load();
-            winSound.load();
-            if(clickSound) clickSound.load();
-        } catch(e) { console.log("SFX load error"); }
-    }
-    
-    function playMusic() {
-        if (bgMusic && audioInitialized && currentMusicVol > 0) {
-            bgMusic.volume = Math.max(0, Math.min(1, currentMusicVol / 100));
-            bgMusic.play().catch(e => console.log("Music autoplay blocked"));
-        }
-    }
-    
-    function stopMusic() {
-        if (bgMusic) {
-            bgMusic.pause();
-            bgMusic.currentTime = 0;
-        }
-    }
-    
-    function updateMusicVolume(value) {
-        currentMusicVol = value;
-        if (bgMusic) bgMusic.volume = Math.max(0, Math.min(1, value / 100));
-        localStorage.setItem("nekoMusicVol", value);
-        if (value === 0 && bgMusic && !bgMusic.paused) {
-            bgMusic.pause();
-        } else if (value > 0 && bgMusic && bgMusic.paused && audioInitialized) {
-            bgMusic.play().catch(e => console.log("Music resume error"));
-        }
-    }
-    
-    function updateSfxVolume(value) {
-        currentSfxVol = value;
-        localStorage.setItem("nekoSfxVol", value);
-    }
-    
-    function loadAudioSettings() {
-        const savedMusic = localStorage.getItem("nekoMusicVol");
-        const savedSfx = localStorage.getItem("nekoSfxVol");
-        if (savedMusic !== null) currentMusicVol = parseInt(savedMusic);
-        if (savedSfx !== null) currentSfxVol = parseInt(savedSfx);
-        document.getElementById("musicVol").value = currentMusicVol;
-        document.getElementById("sfxVol").value = currentSfxVol;
-    }
-    
+    // ========== ЗВУКИ (опционально, не блокируют игру) ==========
+
     // ========== МОДИФИКАТОРЫ ==========
     const ALL_MODIFIERS = [
         { id: "noLegend", name: "⭐ Без легендарок", desc: "Легендарные слоты не выпадают", effect: (p) => { p.legendDisabled = true; } },
@@ -931,7 +872,6 @@
         notification.className = "levelup-notification";
         notification.innerHTML = `🎉 УРОВЕНЬ ${newLevel}! 🎉`;
         document.body.appendChild(notification);
-        window.playSFX('level_up');
         setTimeout(() => notification.remove(), 2000);
         if (newLevel >= 2 && newLevel <= 18 && levelEvents[newLevel]) {
             pendingLevelUpEvent = newLevel;
@@ -967,6 +907,7 @@
     let currentJob = null;
     let currentTask = null;
     let isWorking = false;
+    let isSpinning = false;
     let jobBg = document.getElementById("jobBg");
     
     function updateBetUI() {
@@ -1036,7 +977,7 @@
             document.getElementById("tooltipText").innerHTML = `📊 ${display} / ${need} XP до ${player.level+1} уровня`;
         }
         
-        if (!isWorking && !isInJail) document.getElementById("spinBtn").disabled = player.money < getCurrentBet();
+        if (!isWorking && !isInJail && !isSpinning) document.getElementById("spinBtn").disabled = player.money < getCurrentBet();
         updateThemeButtonsWithLock();
         if (player.level >= 20 && !player.defeatedBoss) startBossFight();
     }
@@ -1149,7 +1090,8 @@
         document.getElementById("jobChoices").innerHTML = "";
         document.getElementById("jobExitBtn").style.display = "none";
         document.getElementById("jobBtn").style.display = "inline-block";
-        if (!isInJail) document.getElementById("spinBtn").disabled = false;
+        if (!isInJail && !isSpinning) document.getElementById("spinBtn").disabled = false;
+        updateUI();
     }
     
     function spin() {
@@ -1157,8 +1099,7 @@
             document.getElementById("msg").innerHTML = "🔒 Ты в тюрьме! Заплати залог! 🔒";
             return;
         }
-        // ЗВУК НАЖАТИЯ КНОПКИ
-        window.playSFX('click');
+        if (isSpinning) { return; }
         
         const CURRENT_BET = getCurrentBet();
         if (player.money < CURRENT_BET) {
@@ -1167,8 +1108,13 @@
             setTimeout(() => document.getElementById("msg").classList.remove("result-lose"), 2000);
             return;
         }
+        
+        isSpinning = true;
+        document.getElementById("spinBtn").disabled = true;
+        
         player.money -= CURRENT_BET;
         updateUI();
+        
         const r = Math.random();
         let legChance = player.hasAmulet ? 0.04 : 0.025;
         if (player.legendDisabled) legChance = 0;
@@ -1180,6 +1126,7 @@
         const sCells = [document.getElementById("s0"), document.getElementById("s1"), document.getElementById("s2")];
         const slotAnimation = document.getElementById("slotAnimation")?.checked !== false;
         if (slotAnimation) sCells.forEach(s => s.classList.add("spinning"));
+        
         setTimeout(() => {
             sCells.forEach((s, i) => s.innerText = row[i]);
             if (slotAnimation) sCells.forEach(s => s.classList.remove("spinning"));
@@ -1190,8 +1137,8 @@
         const isWin = row[0]===row[1] && row[1]===row[2];
         let win = 0, expG = 0;
         spinCount++;
+        
         if (isWin) {
-            window.playSFX('win_slot');
             if (row[0] === STAR) { 
                 win = (CURRENT_BET * 6 + 100) * multiplier; 
                 expG = 70 * multiplier;
@@ -1214,10 +1161,16 @@
             document.getElementById("msg").innerHTML = `💔 ПРОИГРЫШ! -${CURRENT_BET}$, +${expG} XP 💔`; 
             setTimeout(() => document.getElementById("msg").classList.remove("result-lose"), 1500); 
         }
+        
         addExp(expG);
         updateUI();
         saveGame();
         checkAchievements();
+        
+        setTimeout(() => {
+            isSpinning = false;
+            if (!isWorking && !isInJail) document.getElementById("spinBtn").disabled = false;
+        }, 500);
     }
     
     // ========== СОБЫТИЯ УРОВНЕЙ ==========
@@ -1367,24 +1320,20 @@
         const modal = document.getElementById("storyModal");
         const modalText = document.getElementById("modalText");
         const modalChoices = document.getElementById("modalChoices");
-        let cost = 0;
         let success = false;
         let message = "";
         
         if (action === 'attack') {
-            cost = 0;
             let chance = 0.3 + (player.hasAmulet ? 0.2 : 0) - (player.hasCursedCoin ? 0.1 : 0);
             success = Math.random() < chance;
             message = success ? "Твоя атака сразила Бога Слотов!" : "Бог Слотов отразил атаку и контратаковал!";
         } else if (action === 'magic') {
-            cost = 0;
             let chance = 0.4 + (player.exp / 800);
             success = Math.random() < chance;
             message = success ? "Магический взрыв уничтожил Бога Слотов!" : "Заклинание отскочило и ударило по тебе!";
         } else {
             if (player.money >= 2000) {
-                cost = 2000;
-                player.money -= cost;
+                player.money -= 2000;
                 success = true;
                 message = "Бог Слотов взял деньги и ушёл в отпуск на Гавайи! ПОБЕДА!";
             } else {
@@ -1397,6 +1346,9 @@
             player.defeatedBoss = true;
             gameCompleted = true;
             player.money += 5000;
+            updateModifiersSelectorUI();
+            document.getElementById("modifiersSelector").style.display = "block";
+            updateModifiersUI();
             modalText.innerHTML = `<p>✨✨✨ ПОБЕДА! +5000$ ✨✨✨</p>
             <p>⭐ ТЕПЕРЬ ДОСТУПНЫ МОДИФИКАТОРЫ! Выбери их в главном меню. ⭐</p>
             <button class="choice-btn" onclick="closeModal()">🏆 ПРОДОЛЖИТЬ ИГРУ 🏆</button>`;
@@ -1445,7 +1397,6 @@
             isInJail = false;
             for (let key in achievements) achievements[key].unlocked = false;
             canSave = false;
-            // ПРИНУДИТЕЛЬНО ПРИМЕНЯЕМ ТЕМУ ЛЕСА ПРИ СБРОСЕ
             document.body.className = "theme-forest";
             const container = document.getElementById("bgEffects");
             if (container) {
@@ -1504,16 +1455,13 @@
         <p>• НОВЫЕ ЛОКАЦИИ открываются на 6, 11 и 16 уровне — АВТОМАТИЧЕСКИЙ ПЕРЕХОД!</p>
         <p>• ⚠️ ВЕРНУТЬСЯ НА СТАРУЮ ЛОКАЦИЮ НЕЛЬЗЯ! Обратной дороги нет! ⚠️</p>
         <p>🎭 На уровнях <strong>2-18</strong> — сюжетные события!</p>
-        <p>🔊 Звук нажатия на кнопку КРУТИТЬ!</p>
+        <p>🛡️ Защита от кликера — нельзя спамить кнопкой!</p>
         <p>🔥 Удачи, авантюрист!</p>`;
         modalChoices.innerHTML = `<button class="choice-btn" id="prologStartBtn">🎰 ИГРАТЬ!</button>`;
         modal.style.display = "flex";
         document.getElementById("prologStartBtn").onclick = () => {
             modal.style.display = "none";
             canSave = true;
-            audioInitialized = true;
-            loadAudioFiles();
-            playMusic();
             saveGame();
             saveAchievements();
         };
@@ -1539,16 +1487,20 @@
     
     function init() {
         loadAchievements();
-        loadAudioSettings();
         
-        document.getElementById("musicVol").oninput = (e) => updateMusicVolume(parseInt(e.target.value));
-        document.getElementById("sfxVol").oninput = (e) => updateSfxVolume(parseInt(e.target.value));
+        // Настройки звука (опционально, сохраняем для совместимости)
+        const savedMusic = localStorage.getItem("nekoMusicVol");
+        const savedSfx = localStorage.getItem("nekoSfxVol");
+        if (savedMusic) document.getElementById("musicVol").value = savedMusic;
+        if (savedSfx) document.getElementById("sfxVol").value = savedSfx;
+        
+        document.getElementById("musicVol").oninput = (e) => localStorage.setItem("nekoMusicVol", e.target.value);
+        document.getElementById("sfxVol").oninput = (e) => localStorage.setItem("nekoSfxVol", e.target.value);
         
         const hasSave = localStorage.getItem("nekoSlotSave");
         if (hasSave) {
             canSave = true;
             loadGame();
-            // Принудительно обновляем UI темы
             updateThemeButtonsWithLock();
             document.querySelectorAll(".theme-btn").forEach(btn => {
                 if (btn.dataset.theme === player.currentTheme) btn.classList.add("active");
@@ -1563,12 +1515,8 @@
                 updateModifiersSelectorUI();
                 document.getElementById("modifiersSelector").style.display = "block";
             }
-            audioInitialized = true;
-            loadAudioFiles();
-            playMusic();
         } else {
             canSave = false;
-            // ПРИНУДИТЕЛЬНО ПРИМЕНЯЕМ ТЕМУ ЛЕСА ПРИ ПЕРВОМ ЗАПУСКЕ — БЕЛОГО ФОНА НЕ БУДЕТ!
             document.body.className = "theme-forest";
             const container = document.getElementById("bgEffects");
             if (container) {
