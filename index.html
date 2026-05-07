@@ -89,7 +89,9 @@
             cursor: pointer;
         }
         .modifier-check input { margin-right: 10px; width: 18px; height: 18px; cursor: pointer; }
-        .modifier-check label { flex: 1; cursor: pointer; text-align: left; }
+        .modifier-check label { flex: 1; cursor: pointer; text-align: left; color: white; }
+        .modifier-check label strong { color: #ffcc66; }
+        .modifier-check label small { color: #cccccc; display: block; margin-top: 4px; }
         .apply-modifiers-btn { background: #4f7a3b; margin-top: 15px; width: 100%; }
         
         .achievements-list, .settings-panel {
@@ -564,19 +566,75 @@
 </div>
 
 <script>
-    // ========== УНИВЕРСАЛЬНЫЙ ЗВУКОВОЙ ДВИЖОК ==========
-    let bgMusic = null;
-    let spinSound = null;
+    // ========== МУЗЫКА ДЛЯ ЛОКАЦИЙ ==========
+    let currentMusic = null;
     let audioReady = false;
     let currentMusicVol = 30;
     let sfxVolume = 70;
+    let spinSound = null;
+    
+    // Карта музыкальных файлов для каждой локации
+    const locationMusic = {
+        forest: 'sounds/bg_forest.mp3',
+        cyberpunk: 'sounds/Cyberpunk_location.mp3',
+        space: 'sounds/Space_location.mp3',
+        church: 'sounds/Church_location.mp3'
+    };
+    
+    function stopCurrentMusic() {
+        if (currentMusic) {
+            currentMusic.pause();
+            currentMusic.currentTime = 0;
+            currentMusic = null;
+        }
+    }
+    
+    function playMusicForLocation(location) {
+        if (!audioReady) return;
+        
+        const musicFile = locationMusic[location];
+        if (!musicFile) return;
+        
+        // Если уже играет та же музыка — не перезапускаем
+        if (currentMusic && currentMusic.src.includes(musicFile) && !currentMusic.paused) {
+            return;
+        }
+        
+        stopCurrentMusic();
+        
+        try {
+            currentMusic = new Audio(musicFile);
+            currentMusic.loop = true;
+            currentMusic.volume = Math.max(0, Math.min(1, currentMusicVol / 100));
+            
+            if (currentMusicVol > 0) {
+                currentMusic.play().catch(e => console.log("Music play error:", e));
+            }
+        } catch(e) {
+            console.log("Error loading music for", location, e);
+        }
+    }
+    
+    function updateMusicVolume(value) {
+        currentMusicVol = value;
+        if (currentMusic) {
+            if (value <= 1) {
+                currentMusic.muted = true;
+            } else {
+                currentMusic.muted = false;
+                currentMusic.volume = Math.max(0, Math.min(1, value / 100));
+                if (currentMusic.paused && audioReady) {
+                    currentMusic.play().catch(e => console.log("Music resume error:", e));
+                }
+            }
+        }
+        localStorage.setItem("nekoMusicVol", value);
+    }
     
     function initAudio() {
         if (audioReady) return;
         
         try {
-            bgMusic = new Audio('sounds/bg_forest.mp3');
-            bgMusic.loop = true;
             spinSound = new Audio('sounds/win_slot.wav');
             
             const savedMusic = localStorage.getItem("nekoMusicVol");
@@ -584,40 +642,43 @@
             const savedSfx = localStorage.getItem("nekoSfxVol");
             if (savedSfx) sfxVolume = parseInt(savedSfx);
             
-            if (bgMusic) bgMusic.volume = Math.max(0, Math.min(1, currentMusicVol / 100));
             if (spinSound) spinSound.volume = Math.max(0, Math.min(1, sfxVolume / 100));
             
             document.getElementById("musicVol").value = currentMusicVol;
             document.getElementById("sfxVol").value = sfxVolume;
             
+            // Разблокируем звук после первого клика пользователя
             const unlock = () => {
-                if (bgMusic && currentMusicVol > 0) bgMusic.play().catch(e => console.log("Music play:", e));
                 audioReady = true;
+                // Запускаем музыку для текущей локации
+                playMusicForLocation(player.currentTheme);
                 document.removeEventListener('click', unlock);
                 document.removeEventListener('touchstart', unlock);
             };
             document.addEventListener('click', unlock);
             document.addEventListener('touchstart', unlock);
-        } catch(e) { console.log("Audio not supported"); audioReady = true; }
+        } catch(e) { 
+            console.log("Audio not supported"); 
+            audioReady = true;
+        }
     }
     
     window.playSFX = function(soundName) {
         if (!audioReady) return;
         if (soundName === 'win_slot' && spinSound && sfxVolume > 0) {
-            try { const clone = spinSound.cloneNode(); clone.volume = Math.max(0, Math.min(1, sfxVolume / 100)); clone.play().catch(e => {}); } catch(e) {}
+            try { 
+                const clone = spinSound.cloneNode(); 
+                clone.volume = Math.max(0, Math.min(1, sfxVolume / 100)); 
+                clone.play().catch(e => {}); 
+            } catch(e) {}
         }
     };
     
-    function updateMusicVolume(value) {
-        currentMusicVol = value;
-        if (bgMusic) {
-            if (value <= 1) bgMusic.muted = true;
-            else { bgMusic.muted = false; bgMusic.volume = Math.max(0, Math.min(1, value / 100)); if (bgMusic.paused && audioReady) bgMusic.play().catch(e => {}); }
-        }
-        localStorage.setItem("nekoMusicVol", value);
+    function updateSFXVolume(value) { 
+        sfxVolume = value; 
+        if (spinSound) spinSound.volume = Math.max(0, Math.min(1, value / 100)); 
+        localStorage.setItem("nekoSfxVol", value); 
     }
-    
-    function updateSFXVolume(value) { sfxVolume = value; if (spinSound) spinSound.volume = Math.max(0, Math.min(1, value / 100)); localStorage.setItem("nekoSfxVol", value); }
     
     // ========== МОДИФИКАТОРЫ ==========
     const ALL_MODIFIERS = [
@@ -942,11 +1003,108 @@
         modal.style.display = "flex";
     }
     
+    function healInBattle() {
+        if (!inBossFight) return;
+        if (player.money >= 30 && playerHP < 100) {
+            player.money -= 30;
+            playerHP = Math.min(100, playerHP + 25);
+            updateUI();
+            saveGame();
+            
+            const modal = document.getElementById("storyModal");
+            const modalText = document.getElementById("modalText");
+            const modalChoices = document.getElementById("modalChoices");
+            
+            const newBossAction = getRandomBossAction();
+            let newActionMessage = "";
+            if (newBossAction === "attack") newActionMessage = "🔥 БОГ СЛОТОВ АТАКУЕТ! 🔥";
+            else newActionMessage = "✨ БОГ СЛОТОВ ОТВЛЁКСЯ! ✨";
+            
+            modalText.innerHTML = `
+                <h2>👑 БИТВА С БОГОМ СЛОТОВ 👑</h2>
+                <div style="margin: 15px 0;">
+                    <div class="health-bar"><div class="health-fill" style="width: ${Math.max(0, (playerHP/100)*100)}%">❤️ ${Math.max(0, playerHP)}/100</div></div>
+                    <div class="health-bar"><div class="health-fill boss-health-fill" style="width: ${Math.max(0, (bossHP/500)*100)}%">👑 ${Math.max(0, bossHP)}/500</div></div>
+                </div>
+                <div style="background:#44aa44aa; padding:10px; border-radius:20px; margin:10px 0;">
+                    💚 Ты восстановил 25 HP! -30$
+                </div>
+                <div style="background:#aa3333aa; padding:10px; border-radius:20px; margin:10px 0;">
+                    📢 ${newActionMessage}
+                </div>
+                <p>🗡️ Выбери действие:</p>
+            `;
+            
+            modalChoices.innerHTML = `
+                <button class="choice-btn" onclick="bossAction('attack', '${newBossAction}')">⚔️ НАПАДЕНИЕ</button>
+                <button class="choice-btn" onclick="bossAction('defend', '${newBossAction}')">🛡️ ЗАЩИТА</button>
+                <button class="choice-btn" onclick="bossAction('bribe', '${newBossAction}')">💰 ОТКУП (2500$)</button>
+                <button class="choice-btn" onclick="healInBattle()" style="background:#44aa44;">💚 ЛЕЧЕНИЕ (25 HP - 30$)</button>
+            `;
+        } else if (playerHP >= 100) {
+            const modal = document.getElementById("storyModal");
+            const modalText = document.getElementById("modalText");
+            modalText.innerHTML += `<p>❌ У тебя уже полное здоровье! ❌</p>`;
+            setTimeout(() => {
+                const newBossAction = getRandomBossAction();
+                let newActionMessage = "";
+                if (newBossAction === "attack") newActionMessage = "🔥 БОГ СЛОТОВ АТАКУЕТ! 🔥";
+                else newActionMessage = "✨ БОГ СЛОТОВ ОТВЛЁКСЯ! ✨";
+                modalText.innerHTML = `
+                    <h2>👑 БИТВА С БОГОМ СЛОТОВ 👑</h2>
+                    <div style="margin: 15px 0;">
+                        <div class="health-bar"><div class="health-fill" style="width: ${Math.max(0, (playerHP/100)*100)}%">❤️ ${Math.max(0, playerHP)}/100</div></div>
+                        <div class="health-bar"><div class="health-fill boss-health-fill" style="width: ${Math.max(0, (bossHP/500)*100)}%">👑 ${Math.max(0, bossHP)}/500</div></div>
+                    </div>
+                    <div style="background:#aa3333aa; padding:10px; border-radius:20px; margin:10px 0;">
+                        📢 ${newActionMessage}
+                    </div>
+                    <p>🗡️ Выбери действие:</p>
+                `;
+                const modalChoices = document.getElementById("modalChoices");
+                modalChoices.innerHTML = `
+                    <button class="choice-btn" onclick="bossAction('attack', '${newBossAction}')">⚔️ НАПАДЕНИЕ</button>
+                    <button class="choice-btn" onclick="bossAction('defend', '${newBossAction}')">🛡️ ЗАЩИТА</button>
+                    <button class="choice-btn" onclick="bossAction('bribe', '${newBossAction}')">💰 ОТКУП (2500$)</button>
+                    <button class="choice-btn" onclick="healInBattle()" style="background:#44aa44;">💚 ЛЕЧЕНИЕ (25 HP - 30$)</button>
+                `;
+            }, 1000);
+        } else {
+            const modal = document.getElementById("storyModal");
+            const modalText = document.getElementById("modalText");
+            modalText.innerHTML += `<p>❌ Не хватает денег на лечение! Нужно 30$ ❌</p>`;
+            setTimeout(() => {
+                const newBossAction = getRandomBossAction();
+                let newActionMessage = "";
+                if (newBossAction === "attack") newActionMessage = "🔥 БОГ СЛОТОВ АТАКУЕТ! 🔥";
+                else newActionMessage = "✨ БОГ СЛОТОВ ОТВЛЁКСЯ! ✨";
+                modalText.innerHTML = `
+                    <h2>👑 БИТВА С БОГОМ СЛОТОВ 👑</h2>
+                    <div style="margin: 15px 0;">
+                        <div class="health-bar"><div class="health-fill" style="width: ${Math.max(0, (playerHP/100)*100)}%">❤️ ${Math.max(0, playerHP)}/100</div></div>
+                        <div class="health-bar"><div class="health-fill boss-health-fill" style="width: ${Math.max(0, (bossHP/500)*100)}%">👑 ${Math.max(0, bossHP)}/500</div></div>
+                    </div>
+                    <div style="background:#aa3333aa; padding:10px; border-radius:20px; margin:10px 0;">
+                        📢 ${newActionMessage}
+                    </div>
+                    <p>🗡️ Выбери действие:</p>
+                `;
+                const modalChoices = document.getElementById("modalChoices");
+                modalChoices.innerHTML = `
+                    <button class="choice-btn" onclick="bossAction('attack', '${newBossAction}')">⚔️ НАПАДЕНИЕ</button>
+                    <button class="choice-btn" onclick="bossAction('defend', '${newBossAction}')">🛡️ ЗАЩИТА</button>
+                    <button class="choice-btn" onclick="bossAction('bribe', '${newBossAction}')">💰 ОТКУП (2500$)</button>
+                    <button class="choice-btn" onclick="healInBattle()" style="background:#44aa44;">💚 ЛЕЧЕНИЕ (25 HP - 30$)</button>
+                `;
+            }, 1000);
+        }
+    }
+    
     function updateBossModalUI(modal, modalText, modalChoices) {
         const bossAction = getRandomBossAction();
         let actionMessage = "";
         if (bossAction === "attack") actionMessage = "🔥 БОГ СЛОТОВ АТАКУЕТ! 🔥";
-        else if (bossAction === "distract") actionMessage = "✨ БОГ СЛОТОВ ОТВЛЁКСЯ! ✨";
+        else actionMessage = "✨ БОГ СЛОТОВ ОТВЛЁКСЯ! ✨";
         
         modalText.innerHTML = `
             <h2>👑 БИТВА С БОГОМ СЛОТОВ 👑</h2>
@@ -964,6 +1122,7 @@
             <button class="choice-btn" onclick="bossAction('attack', '${bossAction}')">⚔️ НАПАДЕНИЕ</button>
             <button class="choice-btn" onclick="bossAction('defend', '${bossAction}')">🛡️ ЗАЩИТА</button>
             <button class="choice-btn" onclick="bossAction('bribe', '${bossAction}')">💰 ОТКУП (2500$)</button>
+            <button class="choice-btn" onclick="healInBattle()" style="background:#44aa44;">💚 ЛЕЧЕНИЕ (25 HP - 30$)</button>
         `;
     }
     
@@ -1060,6 +1219,7 @@
             <button class="choice-btn" onclick="bossAction('attack', '${newBossAction}')">⚔️ НАПАДЕНИЕ</button>
             <button class="choice-btn" onclick="bossAction('defend', '${newBossAction}')">🛡️ ЗАЩИТА</button>
             <button class="choice-btn" onclick="bossAction('bribe', '${newBossAction}')">💰 ОТКУП (2500$)</button>
+            <button class="choice-btn" onclick="healInBattle()" style="background:#44aa44;">💚 ЛЕЧЕНИЕ (25 HP - 30$)</button>
         `;
     };
     
@@ -1090,8 +1250,15 @@
         
         modalText.innerHTML = `<p>💀 ПОРАЖЕНИЕ! БОГ СЛОТОВ забирает твои силы... 💀</p>
         <p>Ты теряешь 100$ и 50 опыта!</p>
-        <button class="choice-btn" onclick="closeModal()">😭 ПРОДОЛЖИТЬ</button>`;
+        <button class="choice-btn" onclick="closeBossModalAndRetry()">⚔️ ПОПРОБОВАТЬ ЕЩЁ РАЗ ⚔️</button>
+        <button class="choice-btn" onclick="closeModal()">🏠 ВЕРНУТЬСЯ В ИГРУ</button>`;
     }
+    
+    window.closeBossModalAndRetry = function() {
+        const modal = document.getElementById("storyModal");
+        modal.style.display = "none";
+        startBossFight();
+    };
     
     window.closeBossModal = function() {
         const modal = document.getElementById("storyModal");
@@ -1458,6 +1625,10 @@
         const container = document.getElementById("bgEffects");
         if (container) { container.innerHTML = ""; if (effects[theme]) container.innerHTML = effects[theme](); }
         player.currentTheme = theme;
+        
+        // Меняем музыку при смене локации
+        playMusicForLocation(theme);
+        
         saveGame();
         checkAchievements();
         updateThemeButtonsWithLock();
