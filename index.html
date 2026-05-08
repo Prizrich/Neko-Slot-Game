@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>НЕКО СЛОТ | ХАРДКОР-РЕЖИМ</title>
+    <title>НЕКО СЛОТ | ХАРДКОР-РЕЖИМ | НОВЫЙ БАЛАНС</title>
     <style>
         * { user-select: none; box-sizing: border-box; }
         body {
@@ -22,6 +22,32 @@
         body.theme-space { background: radial-gradient(ellipse at center, #0a0a2a, #050510); }
         body.theme-cyberpunk { background: linear-gradient(135deg, #0a0a1a, #1a0a2a); }
         body.theme-church { background: linear-gradient(135deg, #2a1a3a, #1a0a2a); }
+
+        /* АНИМАЦИИ ДЛЯ ДЖЕКПОТОВ */
+        @keyframes jackpotPulse {
+            0% { transform: scale(1); text-shadow: 0 0 0 #ffcc66; }
+            50% { transform: scale(1.05); text-shadow: 0 0 30px #ffaa44, 0 0 60px #ff8833; }
+            100% { transform: scale(1); text-shadow: 0 0 0 #ffcc66; }
+        }
+        @keyframes slotFlash {
+            0% { filter: brightness(1); }
+            50% { filter: brightness(1.5) drop-shadow(0 0 20px gold); }
+            100% { filter: brightness(1); }
+        }
+        .jackpot-effect {
+            animation: jackpotPulse 0.5s ease-in-out 3 !important;
+        }
+        .slot-flash {
+            animation: slotFlash 0.3s ease-in-out 3 !important;
+        }
+        .result-jackpot {
+            background: linear-gradient(90deg, #ffaa00, #ffdd88, #ffaa00);
+            animation: jackpotPulse 0.3s ease 2;
+            font-size: 1.3rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-shadow: 0 0 15px #ffcc66;
+        }
 
         .main-menu {
             position: fixed;
@@ -78,14 +104,6 @@
             display: none;
         }
         .modifiers-selector h4 { color: #ffcc66; margin: 0 0 10px 0; }
-        .modifiers-limit-info {
-            background: rgba(0,0,0,0.6);
-            padding: 8px;
-            border-radius: 30px;
-            margin-bottom: 15px;
-            font-size: 0.9rem;
-            color: #ffaa44;
-        }
         .modifier-check {
             display: flex;
             align-items: center;
@@ -490,10 +508,9 @@
         <button class="menu-btn" id="settingsBtn">⚙ НАСТРОЙКИ</button>
         
         <div id="modifiersSelector" class="modifiers-selector">
-            <h4>⚙️ ВЫБЕРИ МОДИФИКАТОРЫ ⚙️</h4>
-            <div id="modifiersLimitInfo" class="modifiers-limit-info"></div>
+            <h4>⚙️ ВЫБЕРИ МОДИФИКАТОРЫ (до 2-х) ⚙️</h4>
             <div id="modifiersList"></div>
-            <button id="applyModifiersBtn" class="menu-btn apply-modifiers-btn">✅ ПРИМЕНИТЬ И НАЧАТЬ ЗАНОВО</button>
+            <button id="applyModifiersBtn" class="menu-btn apply-modifiers-btn">✅ ПРИМЕНИТЬ</button>
         </div>
         
         <div id="achievementsPanel" class="achievements-list"></div>
@@ -575,149 +592,191 @@
 </div>
 
 <script>
-    // ========== МУЗЫКА ДЛЯ ЛОКАЦИЙ ==========
-    let currentMusic = null;
-    let audioReady = false;
+    // ========== МУЗЫКА ==========
+    let bgMusic = null;
+    let audioInitialized = false;
     let currentMusicVol = 30;
     let sfxVolume = 70;
     let spinSound = null;
     
-    // Карта музыкальных файлов для каждой локации
-    const locationMusic = {
-        forest: 'sounds/bg_forest.mp3',
-        cyberpunk: 'sounds/Cyberpunk_location.mp3',
-        space: 'sounds/Space_location.mp3',
-        church: 'sounds/Church_location.mp3'
-    };
-    
-    // ========== СИСТЕМА ПРОГРЕССИИ МОДИФИКАТОРОВ ==========
-    let globalPlaythroughCount = 0; // Количество побед над боссом за всё время
-    
-    function loadPlaythroughCount() {
-        const saved = localStorage.getItem("nekoPlaythroughCount");
-        if (saved) globalPlaythroughCount = parseInt(saved);
-        else globalPlaythroughCount = 0;
-    }
-    
-    function savePlaythroughCount() {
-        localStorage.setItem("nekoPlaythroughCount", globalPlaythroughCount);
-    }
-    
-    function getCurrentModifierLimit() {
-        if (globalPlaythroughCount >= 3) return 4;
-        if (globalPlaythroughCount >= 1) return 3;
-        return 2;
-    }
-    
-    function getNextLimitMessage() {
-        if (globalPlaythroughCount >= 3) return "🏆 МАКСИМАЛЬНЫЙ УРОВЕНЬ! Можно брать до 4 модификаторов! 🏆";
-        if (globalPlaythroughCount >= 1) return "⭐ УРОВЕНЬ 2! После следующей победы можно будет брать до 4 модификаторов! ⭐";
-        return "🌟 ПЕРВОЕ ПРОХОЖДЕНИЕ! После победы можно будет брать до 3 модификаторов! 🌟";
-    }
-    
-    function updateModifiersLimitUI() {
-        const infoDiv = document.getElementById("modifiersLimitInfo");
-        if (!infoDiv) return;
-        const limit = getCurrentModifierLimit();
-        infoDiv.innerHTML = `📊 ДОСТУПНО МОДИФИКАТОРОВ: ${limit} из ${ALL_MODIFIERS.length}<br>${getNextLimitMessage()}`;
-    }
-    
-    // ========== КОНЕЦ СИСТЕМЫ ПРОГРЕССИИ ==========
-    
-    function stopCurrentMusic() {
-        if (currentMusic) {
-            currentMusic.pause();
-            currentMusic.currentTime = 0;
-            currentMusic = null;
-        }
-    }
-    
-    function playMusicForLocation(location) {
-        if (!audioReady) return;
-        
-        const musicFile = locationMusic[location];
-        if (!musicFile) return;
-        
-        if (currentMusic && currentMusic.src.includes(musicFile) && !currentMusic.paused) {
-            return;
-        }
-        
-        stopCurrentMusic();
-        
-        try {
-            currentMusic = new Audio(musicFile);
-            currentMusic.loop = true;
-            currentMusic.volume = Math.max(0, Math.min(1, currentMusicVol / 100));
-            
-            if (currentMusicVol > 0) {
-                currentMusic.play().catch(e => console.log("Music play error:", e));
-            }
-        } catch(e) {
-            console.log("Error loading music for", location, e);
-        }
-    }
-    
-    function updateMusicVolume(value) {
-        currentMusicVol = value;
-        if (currentMusic) {
-            if (value <= 1) {
-                currentMusic.muted = true;
-            } else {
-                currentMusic.muted = false;
-                currentMusic.volume = Math.max(0, Math.min(1, value / 100));
-                if (currentMusic.paused && audioReady) {
-                    currentMusic.play().catch(e => console.log("Music resume error:", e));
-                }
-            }
-        }
-        localStorage.setItem("nekoMusicVol", value);
-    }
-    
     function initAudio() {
-        if (audioReady) return;
-        
+        if (audioInitialized) return;
         try {
+            bgMusic = new Audio('sounds/bg_forest.mp3');
+            bgMusic.loop = true;
             spinSound = new Audio('sounds/win_slot.wav');
-            
             const savedMusic = localStorage.getItem("nekoMusicVol");
             if (savedMusic) currentMusicVol = parseInt(savedMusic);
             const savedSfx = localStorage.getItem("nekoSfxVol");
             if (savedSfx) sfxVolume = parseInt(savedSfx);
-            
+            if (bgMusic) bgMusic.volume = Math.max(0, Math.min(1, currentMusicVol / 100));
             if (spinSound) spinSound.volume = Math.max(0, Math.min(1, sfxVolume / 100));
-            
             document.getElementById("musicVol").value = currentMusicVol;
             document.getElementById("sfxVol").value = sfxVolume;
-            
             const unlock = () => {
-                audioReady = true;
-                playMusicForLocation(player.currentTheme);
+                if (bgMusic && currentMusicVol > 0) bgMusic.play().catch(e => console.log("Music play:", e));
+                audioInitialized = true;
                 document.removeEventListener('click', unlock);
                 document.removeEventListener('touchstart', unlock);
             };
             document.addEventListener('click', unlock);
             document.addEventListener('touchstart', unlock);
-        } catch(e) { 
-            console.log("Audio not supported"); 
-            audioReady = true;
-        }
+        } catch(e) { console.log("Audio not supported"); audioInitialized = true; }
     }
     
     window.playSFX = function(soundName) {
-        if (!audioReady) return;
+        if (!audioInitialized) return;
         if (soundName === 'win_slot' && spinSound && sfxVolume > 0) {
-            try { 
-                const clone = spinSound.cloneNode(); 
-                clone.volume = Math.max(0, Math.min(1, sfxVolume / 100)); 
-                clone.play().catch(e => {}); 
-            } catch(e) {}
+            try { const clone = spinSound.cloneNode(); clone.volume = Math.max(0, Math.min(1, sfxVolume / 100)); clone.play().catch(e => {}); } catch(e) {}
         }
     };
     
-    function updateSFXVolume(value) { 
-        sfxVolume = value; 
-        if (spinSound) spinSound.volume = Math.max(0, Math.min(1, value / 100)); 
-        localStorage.setItem("nekoSfxVol", value); 
+    function updateMusicVolume(value) {
+        currentMusicVol = value;
+        if (bgMusic) {
+            if (value <= 1) bgMusic.muted = true;
+            else { bgMusic.muted = false; bgMusic.volume = Math.max(0, Math.min(1, value / 100)); if (bgMusic.paused && audioInitialized) bgMusic.play().catch(e => {}); }
+        }
+        localStorage.setItem("nekoMusicVol", value);
+    }
+    
+    function updateSFXVolume(value) { sfxVolume = value; if (spinSound) spinSound.volume = Math.max(0, Math.min(1, value / 100)); localStorage.setItem("nekoSfxVol", value); }
+    
+    // ========== НОВАЯ СИСТЕМА СЛОТОВ С БАЛАНСОМ ==========
+    const FRUITS = ["🍒","🍋","🍊","🍉","🍑","🍎","🍓"];
+    const STAR = "⭐";
+    const JACKPOT_SYMBOL = "💎";
+    
+    // Функция определения результата с балансом
+    function getSpinResult() {
+        // Шансы (в сумме 100%)
+        // 40% - 2 одинаковых (возврат половины)
+        // 15% - 3 любых фрукта
+        // 8% - 3 одинаковых простых (🍒🍋🍊)
+        // 5% - 3 одинаковых средних (🍉🍑)
+        // 3% - 3 одинаковых редких (🍎🍓)
+        // 4% - легендарка (⭐⭐⭐)
+        // 0.5% - джекпот (💎💎💎)
+        // Остальное - проигрыш
+        
+        const r = Math.random();
+        
+        // Сначала проверяем джекпот
+        if (r < 0.005) {
+            return { type: "jackpot", row: [JACKPOT_SYMBOL, JACKPOT_SYMBOL, JACKPOT_SYMBOL], multiplier: 12, bonus: 100 };
+        }
+        // Легендарка
+        else if (r < 0.045) {
+            return { type: "legend", row: [STAR, STAR, STAR], multiplier: 8, bonus: 50 };
+        }
+        // 3 одинаковых редких
+        else if (r < 0.075) {
+            const rareFruits = ["🍎","🍓"];
+            const fruit = rareFruits[Math.floor(Math.random() * rareFruits.length)];
+            return { type: "win3", row: [fruit, fruit, fruit], multiplier: 6, bonus: 0 };
+        }
+        // 3 одинаковых средних
+        else if (r < 0.125) {
+            const mediumFruits = ["🍉","🍑"];
+            const fruit = mediumFruits[Math.floor(Math.random() * mediumFruits.length)];
+            return { type: "win3", row: [fruit, fruit, fruit], multiplier: 4, bonus: 0 };
+        }
+        // 3 одинаковых простых
+        else if (r < 0.205) {
+            const simpleFruits = ["🍒","🍋","🍊"];
+            const fruit = simpleFruits[Math.floor(Math.random() * simpleFruits.length)];
+            return { type: "win3", row: [fruit, fruit, fruit], multiplier: 2.5, bonus: 0 };
+        }
+        // 3 любых фрукта (не обязательно одинаковых)
+        else if (r < 0.355) {
+            let row;
+            do {
+                row = [
+                    FRUITS[Math.floor(Math.random() * FRUITS.length)],
+                    FRUITS[Math.floor(Math.random() * FRUITS.length)],
+                    FRUITS[Math.floor(Math.random() * FRUITS.length)]
+                ];
+            } while(row[0] === row[1] && row[1] === row[2]);
+            return { type: "winAny3", row: row, multiplier: 1.5, bonus: 0 };
+        }
+        // 2 одинаковых (возврат половины)
+        else if (r < 0.755) {
+            let row;
+            do {
+                row = [
+                    FRUITS[Math.floor(Math.random() * FRUITS.length)],
+                    FRUITS[Math.floor(Math.random() * FRUITS.length)],
+                    FRUITS[Math.floor(Math.random() * FRUITS.length)]
+                ];
+            } while((row[0] === row[1] && row[1] === row[2]) || (row[0] !== row[1] && row[1] !== row[2] && row[0] !== row[2]));
+            return { type: "twoSame", row: row, multiplier: 0.5, bonus: 0 };
+        }
+        // Проигрыш
+        else {
+            let row;
+            do {
+                row = [
+                    FRUITS[Math.floor(Math.random() * FRUITS.length)],
+                    FRUITS[Math.floor(Math.random() * FRUITS.length)],
+                    FRUITS[Math.floor(Math.random() * FRUITS.length)]
+                ];
+            } while(row[0] === row[1] || row[1] === row[2] || row[0] === row[2]);
+            return { type: "lose", row: row, multiplier: 0, bonus: 0 };
+        }
+    }
+    
+    // Система "Удачи" - увеличивает шансы при проигрышах
+    let consecutiveLosses = 0;
+    
+    function getEnhancedSpinResult() {
+        const money = player.money;
+        const bet = getCurrentBet();
+        
+        // Режим надежды: если денег мало, повышаем шансы
+        let luckBonus = 0;
+        let guaranteedWin = false;
+        
+        if (money < 50) {
+            luckBonus = 0.3; // +30% к шансу выигрыша
+            if (money < 20) {
+                guaranteedWin = true;
+            }
+        } else if (money < 100) {
+            luckBonus = 0.15; // +15% к шансу выигрыша
+        }
+        
+        // Бонус за серию проигрышей
+        if (consecutiveLosses >= 5) {
+            luckBonus += 0.2;
+        } else if (consecutiveLosses >= 3) {
+            luckBonus += 0.1;
+        }
+        
+        // Гарантированный выигрыш при критически малых деньгах
+        if (guaranteedWin) {
+            // Даём небольшой гарантированный выигрыш
+            const simpleFruits = ["🍒","🍋","🍊"];
+            const fruit = simpleFruits[Math.floor(Math.random() * simpleFruits.length)];
+            consecutiveLosses = 0;
+            return { type: "win3", row: [fruit, fruit, fruit], multiplier: 1.5, bonus: 20 };
+        }
+        
+        // С вероятностью luckBonus даём улучшенный результат
+        if (luckBonus > 0 && Math.random() < luckBonus) {
+            // Улучшаем результат до выигрыша
+            const simpleFruits = ["🍒","🍋","🍊"];
+            const fruit = simpleFruits[Math.floor(Math.random() * simpleFruits.length)];
+            consecutiveLosses = 0;
+            return { type: "win3", row: [fruit, fruit, fruit], multiplier: 2, bonus: 0 };
+        }
+        
+        const result = getSpinResult();
+        if (result.type === "lose") {
+            consecutiveLosses++;
+        } else {
+            consecutiveLosses = 0;
+        }
+        return result;
     }
     
     // ========== МОДИФИКАТОРЫ ==========
@@ -735,7 +794,6 @@
         const container = document.getElementById("modifiersList");
         if (!container) return;
         container.innerHTML = "";
-        const limit = getCurrentModifierLimit();
         ALL_MODIFIERS.forEach(mod => {
             const div = document.createElement("div");
             div.className = "modifier-check";
@@ -743,7 +801,6 @@
             div.innerHTML = `<input type="checkbox" id="mod_${mod.id}" ${isChecked ? "checked" : ""}><label for="mod_${mod.id}"><strong>${mod.name}</strong><br><small>${mod.desc}</small></label>`;
             container.appendChild(div);
         });
-        updateModifiersLimitUI();
     }
     
     function applySelectedModifiers() {
@@ -752,90 +809,13 @@
             const cb = document.getElementById(`mod_${mod.id}`);
             if (cb && cb.checked) selected.push(mod);
         });
-        
-        const limit = getCurrentModifierLimit();
-        if (selected.length > limit) { 
-            alert(`Можно выбрать не более ${limit} модификаторов! Текущий уровень позволяет брать только ${limit}. Побеждайте босса больше раз, чтобы увеличить лимит!`); 
-            return; 
-        }
-        
-        // Показываем подтверждение
-        const confirmModal = document.getElementById("storyModal");
-        const modalText = document.getElementById("modalText");
-        const modalChoices = document.getElementById("modalChoices");
-        
-        let modifiersText = "";
-        selected.forEach(m => { modifiersText += `\n• ${m.name} — ${m.desc}`; });
-        if (selected.length === 0) modifiersText = "\n• Модификаторы не выбраны";
-        
-        modalText.innerHTML = `<p>⚠️ <strong>ВНИМАНИЕ!</strong> ⚠️</p>
-        <p>После применения модификаторов игра начнётся <strong>ЗАНОВО</strong>!</p>
-        <p>Весь текущий прогресс будет <strong>УТЕРЯН</strong>.</p>
-        <p>Выбранные модификаторы:${modifiersText}</p>
-        <p style="color:#ffaa44;">Вы уверены, что хотите начать новую игру с этими усложнениями?</p>`;
-        
-        modalChoices.innerHTML = `
-            <button class="choice-btn" id="confirmResetBtn" style="background:#44aa44;">✅ ДА, НАЧАТЬ ЗАНОВО</button>
-            <button class="choice-btn" id="cancelResetBtn" style="background:#aa4444;">❌ ОТМЕНА</button>
-        `;
-        
-        confirmModal.style.display = "flex";
-        
-        document.getElementById("confirmResetBtn").onclick = () => {
-            confirmModal.style.display = "none";
-            activeModifiers = selected;
-            resetGameWithModifiers();
-        };
-        
-        document.getElementById("cancelResetBtn").onclick = () => {
-            confirmModal.style.display = "none";
-        };
-    }
-    
-    function resetGameWithModifiers() {
-        // Полная перезагрузка игры с новыми модификаторами
-        localStorage.removeItem("nekoSlotSave");
-        localStorage.removeItem("nekoAchievements");
-        
-        // Сброс всех игровых переменных
-        player = {
-            level: 1, money: 200, exp: 0, hasAmulet: false, hasCursedCoin: false, defeatedBoss: false, currentTheme: "forest",
-            legendDisabled: false, badReputation: false, smallWins: false, highRisk: false
-        };
-        spinCount = 0;
-        legendCount = 0;
-        jobCount = 0;
-        gameCompleted = true;
-        isInJail = false;
-        inBossFight = false;
-        
-        for (let key in achievements) achievements[key].unlocked = false;
-        
-        // Применяем модификаторы к игроку
+        if (selected.length > 2) { alert("Можно выбрать не более 2 модификаторов!"); return; }
+        activeModifiers = selected;
         applyModifiersToPlayer(player);
-        
-        // Обновляем UI
-        document.body.className = "theme-forest";
-        const container = document.getElementById("bgEffects");
-        if (container) container.innerHTML = effects.forest();
-        player.currentTheme = "forest";
-        for(let i=0;i<3;i++) document.getElementById(`s${i}`).innerText = FRUITS[Math.floor(Math.random()*FRUITS.length)];
-        
-        updateUI();
-        updateAchievementsUI();
         updateModifiersUI();
-        document.getElementById("jailPanel").style.display = "none";
-        document.getElementById("spinBtn").disabled = false;
-        document.getElementById("jobBtn").disabled = false;
-        document.getElementById("msg").innerHTML = "⚙️ НОВАЯ ИГРА С МОДИФИКАТОРАМИ! ⚙️";
-        
-        // Сохраняем игру с новыми модификаторами
-        canSave = true;
         saveGame();
-        saveAchievements();
-        
-        // Закрываем меню модификаторов
         document.getElementById("modifiersSelector").style.display = "none";
+        document.getElementById("msg").innerHTML = "✅ Модификаторы применены! Удачи! ✅";
     }
     
     function updateModifiersUI() {
@@ -908,7 +888,8 @@
         churchVisitor: { name: "⛪ ПАЛОМНИК", desc: "Посетить Церковь (16+ уровень)", unlocked: false },
         legendHunter: { name: "⭐ ОХОТНИК ЗА ЛЕГЕНДАМИ", desc: "Поймать 5 легендарок", unlocked: false },
         bossDefeated: { name: "👑 ПОБЕДИТЕЛЬ", desc: "Победить Бога Слотов", unlocked: false },
-        hardcorePlayer: { name: "💀 ХАРДКОРЩИК", desc: "Победить босса с активными модификаторами", unlocked: false }
+        hardcorePlayer: { name: "💀 ХАРДКОРЩИК", desc: "Победить босса с активными модификаторами", unlocked: false },
+        jackpotWinner: { name: "💎 ДЖЕКПОТ!", desc: "Сорвать джекпот", unlocked: false }
     };
     
     let spinCount = 0;
@@ -959,9 +940,6 @@
     }
     
     // ========== КОНФИГ ==========
-    const FRUITS = ["🍒","🍋","🍊","🍉","🍎","🍓","🍑"];
-    const STAR = "⭐";
-    
     const EXP_FOR_LEVEL = {
         1: 0, 2: 100, 3: 220, 4: 360, 5: 520, 6: 700, 7: 900, 8: 1120, 9: 1360, 10: 1620,
         11: 1900, 12: 2200, 13: 2520, 14: 2860, 15: 3220, 16: 3600, 17: 4000, 18: 4420, 19: 4860, 20: 5320
@@ -1258,7 +1236,6 @@
         
         let resultMessage = "";
         
-        // Обработка откупа
         if (action === 'bribe') {
             if (player.money >= 2500) {
                 player.money -= 2500;
@@ -1275,19 +1252,16 @@
             }
         }
         
-        // Обработка атаки
         if (action === 'attack') {
             let damage = player.hasAmulet ? Math.floor(Math.random() * 11) + 20 : Math.floor(Math.random() * 6) + 10;
             bossHP -= damage;
             resultMessage = `⚔️ Ты нанёс ${damage} урона!`;
         }
         
-        // Обработка защиты
         if (action === 'defend') {
             resultMessage = `🛡️ Ты встал в защитную стойку!`;
         }
         
-        // Ход босса
         if (bossAction === 'attack') {
             let damage = 10;
             if (action === 'defend') damage = Math.floor(damage / 2);
@@ -1297,7 +1271,6 @@
             resultMessage += `\n✨ Бог Слотов отвлёкся и не атакует!`;
         }
         
-        // Проверка окончания боя
         if (playerHP <= 0) {
             playerHP = 0;
             endBossDefeat(modal, modalText);
@@ -1310,10 +1283,8 @@
             return;
         }
         
-        // Обновление UI
         updateUI();
         
-        // Продолжение боя
         const newBossAction = getRandomBossAction();
         let newActionMessage = "";
         if (newBossAction === "attack") newActionMessage = "🔥 БОГ СЛОТОВ АТАКУЕТ! 🔥";
@@ -1343,12 +1314,6 @@
     };
     
     function endBossVictory(modal, modalText) {
-        // Увеличиваем счётчик прохождений при победе над боссом (только если это первая победа в этом забеге)
-        if (!player.defeatedBoss) {
-            globalPlaythroughCount++;
-            savePlaythroughCount();
-        }
-        
         player.defeatedBoss = true;
         gameCompleted = true;
         player.money += 5000;
@@ -1361,11 +1326,8 @@
         document.getElementById("modifiersSelector").style.display = "block";
         updateModifiersUI();
         
-        const limit = getCurrentModifierLimit();
         modalText.innerHTML = `<p>✨✨✨ ПОБЕДА! +5000$ ✨✨✨</p>
-        <p>🏆 ВСЕГО ПОБЕД НАД БОССОМ: ${globalPlaythroughCount} 🏆</p>
-        <p>⭐ ТЕПЕРЬ ДОСТУПНО МОДИФИКАТОРОВ: ${limit} из ${ALL_MODIFIERS.length} ⭐</p>
-        <p>${getNextLimitMessage()}</p>
+        <p>⭐ ТЕПЕРЬ ДОСТУПНЫ МОДИФИКАТОРЫ! Выбери их в главном меню. ⭐</p>
         <button class="choice-btn" onclick="closeModal()">🏆 ПРОДОЛЖИТЬ ИГРУ 🏆</button>`;
     }
     
@@ -1414,7 +1376,7 @@
     function getCurrentRisk() { let baseRisk = THEME_RISK[player.currentTheme] || 0; if (player.badReputation) baseRisk += 0.15; if (player.highRisk) baseRisk += 0.1; return Math.min(0.7, baseRisk); }
     function getTasksForCurrentTheme() { if (!player.currentTheme || !tasksData[player.currentTheme]) return tasksData.forest; return tasksData[player.currentTheme]; }
     
-    function saveGame() { if (!canSave) return; localStorage.setItem("nekoSlotSave", JSON.stringify({ player, spinCount, legendCount, jobCount, activeModifiers, gameCompleted, isInJail, bailAmount })); }
+    function saveGame() { if (!canSave) return; localStorage.setItem("nekoSlotSave", JSON.stringify({ player, spinCount, legendCount, jobCount, activeModifiers, gameCompleted, isInJail, bailAmount, consecutiveLosses })); }
     
     function loadGame() {
         const saved = localStorage.getItem("nekoSlotSave");
@@ -1429,6 +1391,7 @@
                 gameCompleted = data.gameCompleted || false;
                 isInJail = data.isInJail || false;
                 bailAmount = data.bailAmount || 120;
+                consecutiveLosses = data.consecutiveLosses || 0;
                 if (isInJail) { document.getElementById("jailPanel").style.display = "block"; document.getElementById("spinBtn").disabled = true; document.getElementById("jobBtn").disabled = true; }
                 applyModifiersToPlayer(player);
                 updateModifiersUI();
@@ -1544,39 +1507,87 @@
     function spin() {
         if (isInJail) { document.getElementById("msg").innerHTML = "🔒 Ты в тюрьме! Заплати залог! 🔒"; return; }
         if (isSpinning) { return; }
+        
         const CURRENT_BET = getCurrentBet();
-        if (player.money < CURRENT_BET) { document.getElementById("msg").classList.add("result-lose"); document.getElementById("msg").innerText = "❌ Нет денег! Жми ПОДРАБОТАТЬ!"; setTimeout(() => document.getElementById("msg").classList.remove("result-lose"), 2000); return; }
+        if (player.money < CURRENT_BET) {
+            document.getElementById("msg").classList.add("result-lose");
+            document.getElementById("msg").innerText = "❌ Нет денег! Жми ПОДРАБОТАТЬ!";
+            setTimeout(() => document.getElementById("msg").classList.remove("result-lose"), 2000);
+            return;
+        }
+        
         isSpinning = true;
         document.getElementById("spinBtn").disabled = true;
         if (typeof window.playSFX === 'function') window.playSFX('win_slot');
+        
         player.money -= CURRENT_BET;
         updateUI();
-        const r = Math.random();
-        let legChance = player.hasAmulet ? 0.04 : 0.025;
-        if (player.legendDisabled) legChance = 0;
-        let row;
-        if (r < legChance) row = [STAR, STAR, STAR];
-        else if (r < 0.17 + (player.hasCursedCoin ? 0.03 : 0)) { let f = FRUITS[Math.floor(Math.random()*FRUITS.length)]; row = [f, f, f]; }
-        else { do { row = [FRUITS[Math.floor(Math.random()*FRUITS.length)], FRUITS[Math.floor(Math.random()*FRUITS.length)], FRUITS[Math.floor(Math.random()*FRUITS.length)]]; } while(row[0]===row[1] && row[1]===row[2]); }
+        
+        // Получаем результат с учётом системы удачи
+        const result = getEnhancedSpinResult();
+        let row = result.row;
+        let win = 0;
+        let expG = 0;
+        let isJackpot = (result.type === "jackpot");
+        let isLegend = (result.type === "legend");
+        
+        // Эффекты джекпота
+        if (isJackpot) {
+            document.querySelectorAll(".slot-cell").forEach(cell => cell.classList.add("slot-flash"));
+            setTimeout(() => document.querySelectorAll(".slot-cell").forEach(cell => cell.classList.remove("slot-flash")), 600);
+        }
+        
         const sCells = [document.getElementById("s0"), document.getElementById("s1"), document.getElementById("s2")];
         const slotAnimation = document.getElementById("slotAnimation")?.checked !== false;
         if (slotAnimation) sCells.forEach(s => s.classList.add("spinning"));
-        setTimeout(() => { sCells.forEach((s, i) => s.innerText = row[i]); if (slotAnimation) sCells.forEach(s => s.classList.remove("spinning")); }, 120);
+        
+        setTimeout(() => {
+            sCells.forEach((s, i) => s.innerText = row[i]);
+            if (slotAnimation) sCells.forEach(s => s.classList.remove("spinning"));
+        }, 120);
+        
         let multiplier = getCurrentMultiplier();
         if (player.smallWins) multiplier = Math.max(0.5, multiplier - 0.3);
-        const isWin = row[0]===row[1] && row[1]===row[2];
-        let win = 0, expG = 0;
+        
         spinCount++;
-        if (isWin) {
-            if (row[0] === STAR) { win = (CURRENT_BET * 6 + 100) * multiplier; expG = 70 * multiplier; legendCount++; document.getElementById("msg").classList.add("result-legend"); document.getElementById("msg").innerHTML = `🌟🌟🌟 ЛЕГЕНДАРКА! +${win}$, +${expG} XP 🌟🌟🌟`; setTimeout(() => document.getElementById("msg").classList.remove("result-legend"), 2800); }
-            else { const multi = { "🍒":2,"🍋":2,"🍊":2,"🍉":2.5,"🍎":3,"🍓":2.5,"🍑":2 }[row[0]] || 2; win = Math.floor(CURRENT_BET * multi * multiplier); expG = 25 * multiplier; document.getElementById("msg").classList.add("result-win"); document.getElementById("msg").innerHTML = `🎉 ПОБЕДА! +${win}$, +${expG} XP 🎉`; setTimeout(() => document.getElementById("msg").classList.remove("result-win"), 2000); }
+        
+        if (result.type !== "lose") {
+            win = Math.floor(CURRENT_BET * result.multiplier * multiplier) + (result.bonus || 0);
+            expG = result.type === "legend" ? 70 : result.type === "jackpot" ? 100 : result.type === "win3" ? 25 : result.type === "winAny3" ? 15 : 8;
+            expG = Math.floor(expG * multiplier);
+            
+            if (result.type === "legend") {
+                legendCount++;
+                document.getElementById("msg").classList.add("result-legend");
+                document.getElementById("msg").innerHTML = `🌟🌟🌟 ЛЕГЕНДАРКА! +${win}$, +${expG} XP 🌟🌟🌟`;
+                setTimeout(() => document.getElementById("msg").classList.remove("result-legend"), 2800);
+            } else if (result.type === "jackpot") {
+                if (!achievements.jackpotWinner.unlocked) unlockAchievement("jackpotWinner");
+                document.getElementById("msg").classList.add("result-jackpot");
+                document.getElementById("msg").innerHTML = `💎💎💎 ДЖЕКПОТ! +${win}$, +${expG} XP 💎💎💎`;
+                setTimeout(() => document.getElementById("msg").classList.remove("result-jackpot"), 3000);
+            } else {
+                document.getElementById("msg").classList.add("result-win");
+                document.getElementById("msg").innerHTML = `🎉 ПОБЕДА! +${win}$, +${expG} XP 🎉`;
+                setTimeout(() => document.getElementById("msg").classList.remove("result-win"), 2000);
+            }
             player.money += win;
-        } else { expG = 8 * multiplier; document.getElementById("msg").classList.add("result-lose"); document.getElementById("msg").innerHTML = `💔 ПРОИГРЫШ! -${CURRENT_BET}$, +${expG} XP 💔`; setTimeout(() => document.getElementById("msg").classList.remove("result-lose"), 1500); }
+        } else {
+            expG = 5 * multiplier;
+            document.getElementById("msg").classList.add("result-lose");
+            document.getElementById("msg").innerHTML = `💔 ПРОИГРЫШ! -${CURRENT_BET}$, +${expG} XP 💔`;
+            setTimeout(() => document.getElementById("msg").classList.remove("result-lose"), 1500);
+        }
+        
         addExp(expG);
         updateUI();
         saveGame();
         checkAchievements();
-        setTimeout(() => { isSpinning = false; if (!isWorking && !isInJail) document.getElementById("spinBtn").disabled = false; }, 500);
+        
+        setTimeout(() => {
+            isSpinning = false;
+            if (!isWorking && !isInJail) document.getElementById("spinBtn").disabled = false;
+        }, 500);
     }
     
     // ========== СОБЫТИЯ УРОВНЕЙ ==========
@@ -1720,10 +1731,8 @@
         if (confirm("⚠️ СБРОСИТЬ ВЕСЬ ПРОГРЕСС? Всё начнётся заново!")) {
             localStorage.removeItem("nekoSlotSave");
             localStorage.removeItem("nekoAchievements");
-            localStorage.removeItem("nekoPlaythroughCount");
-            globalPlaythroughCount = 0;
             player = { level:1, money:200, exp:0, hasAmulet:false, hasCursedCoin:false, defeatedBoss:false, currentTheme:"forest", legendDisabled: false, badReputation: false, smallWins: false, highRisk: false };
-            spinCount = 0; legendCount = 0; jobCount = 0; activeModifiers = []; gameCompleted = false; isInJail = false;
+            spinCount = 0; legendCount = 0; jobCount = 0; activeModifiers = []; gameCompleted = false; isInJail = false; consecutiveLosses = 0;
             for (let key in achievements) achievements[key].unlocked = false;
             canSave = false;
             document.body.className = "theme-forest";
@@ -1755,10 +1764,6 @@
         const container = document.getElementById("bgEffects");
         if (container) { container.innerHTML = ""; if (effects[theme]) container.innerHTML = effects[theme](); }
         player.currentTheme = theme;
-        
-        // Меняем музыку при смене локации
-        playMusicForLocation(theme);
-        
         saveGame();
         checkAchievements();
         updateThemeButtonsWithLock();
@@ -1779,7 +1784,6 @@
         <p>• За РИСКОВЫЕ действия можно попасть в ТЮРЬМУ (залог 120$)</p>
         <p>• НОВЫЕ ЛОКАЦИИ открываются на 6, 11 и 16 уровне — АВТОМАТИЧЕСКИЙ ПЕРЕХОД!</p>
         <p>• ⚠️ ВЕРНУТЬСЯ НА СТАРУЮ ЛОКАЦИЮ НЕЛЬЗЯ! Обратной дороги нет! ⚠️</p>
-        <p>• 🏆 Каждая победа над боссом увеличивает лимит модификаторов (2→3→4)</p>
         <p>🎭 На уровнях <strong>2-18</strong> — сюжетные события!</p>
         <p>🔥 Удачи, авантюрист!</p>`;
         modalChoices.innerHTML = `<button class="choice-btn" id="prologStartBtn">🎰 ИГРАТЬ!</button>`;
@@ -1804,10 +1808,7 @@
     function toggleSettings() { const panel = document.getElementById("settingsPanel"); panel.style.display = panel.style.display === "block" ? "none" : "block"; }
     
     function init() {
-        loadPlaythroughCount();
         loadAchievements();
-        updateModifiersLimitUI();
-        
         const musicSlider = document.getElementById("musicVol");
         if (musicSlider) musicSlider.oninput = (e) => updateMusicVolume(parseInt(e.target.value));
         const sfxSlider = document.getElementById("sfxVol");
