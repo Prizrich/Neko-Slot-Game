@@ -1828,28 +1828,42 @@
         }
     }
 }
-    
     function resetProgress() {
-        if (confirm("⚠️ СБРОСИТЬ ВЕСЬ ПРОГРЕСС? Всё начнётся заново!")) {
-            localStorage.removeItem("nekoSlotSave");
-            localStorage.removeItem("nekoAchievements");
-            player = { level:1, money:200, exp:0, hasAmulet:false, hasCursedCoin:false, defeatedBoss:false, currentTheme:"forest", legendDisabled: false, badReputation: false, smallWins: false, highRisk: false };
-            spinCount = 0; legendCount = 0; jobCount = 0; activeModifiers = []; gameCompleted = false; isInJail = false; consecutiveLosses = 0;
-            for (let key in achievements) achievements[key].unlocked = false;
-            canSave = false;
-            document.body.className = "theme-forest";
-            const container = document.getElementById("bgEffects");
-            if (container) container.innerHTML = effects.forest();
-            player.currentTheme = "forest";
-            for(let i=0;i<3;i++) document.getElementById(`s${i}`).innerText = FRUITS[Math.floor(Math.random()*FRUITS.length)];
-            updateUI(); updateAchievementsUI(); updateModifiersUI();
-            document.getElementById("jailPanel").style.display = "none";
-            document.getElementById("spinBtn").disabled = false;
-            document.getElementById("jobBtn").disabled = false;
-            document.getElementById("msg").innerHTML = "🔄 ПРОГРЕСС СБРОШЕН! 🔄";
-            showPrologue();
-        }
+    if (confirm("⚠️ СБРОСИТЬ ВЕСЬ ПРОГРЕСС? Всё начнётся заново!")) {
+        localStorage.removeItem("nekoSlotSave");
+        localStorage.removeItem("nekoAchievements");
     }
+
+    player = { level: 1, money: 200, exp: 0, hasAmulet: false, hasCursedCoin: false, defeatedBoss: false, currentTheme: "forest", legendDisabled: false, badReputation: false, smallWins: false, highRisk: false };
+    spinCount = 0; legendCount = 0; jobCount = 0; activeModifiers = []; gameCompleted = false; isInJail = false; consecutiveLosses = 0;
+    for (let key in achievements) achievements[key].unlocked = false;
+    canSave = false;
+
+    document.body.className = "theme-forest";
+    const container = document.getElementById("bgEffects");
+    if (container) container.innerHTML = effects.forest();
+    player.currentTheme = "forest";
+    for(let i = 0; i < 3; i++) document.getElementById(`s${i}`).innerText = FRUITS[Math.floor(Math.random() * FRUITS.length)];
+
+    // Останавливаем старую музыку и запускаем музыку леса
+    if (currentMusic) {
+        currentMusic.pause();
+        currentMusic.currentTime = 0;
+        currentMusic = null;
+    }
+    if (audioReady) {
+        playMusicForLocation("forest");
+    }
+
+    updateUI(); 
+    updateAchievementsUI(); 
+    updateModifiersUI();
+    document.getElementById("jailPanel").style.display = "none";
+    document.getElementById("spinBtn").disabled = false;
+    document.getElementById("jobBtn").disabled = false;
+    document.getElementById("msg").innerHTML = "🔄 ПРОГРЕСС СБРОШЕН! 🔄";
+    showPrologue();
+}
     
     // ========== ФОНЫ ==========
     const effects = {
