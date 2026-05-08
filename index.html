@@ -23,7 +23,6 @@
         body.theme-cyberpunk { background: linear-gradient(135deg, #0a0a1a, #1a0a2a); }
         body.theme-church { background: linear-gradient(135deg, #2a1a3a, #1a0a2a); }
 
-        /* АНИМАЦИИ ДЛЯ ДЖЕКПОТОВ */
         @keyframes jackpotPulse {
             0% { transform: scale(1); text-shadow: 0 0 0 #ffcc66; }
             50% { transform: scale(1.05); text-shadow: 0 0 30px #ffaa44, 0 0 60px #ff8833; }
@@ -33,12 +32,6 @@
             0% { filter: brightness(1); }
             50% { filter: brightness(1.5) drop-shadow(0 0 20px gold); }
             100% { filter: brightness(1); }
-        }
-        .jackpot-effect {
-            animation: jackpotPulse 0.5s ease-in-out 3 !important;
-        }
-        .slot-flash {
-            animation: slotFlash 0.3s ease-in-out 3 !important;
         }
         .result-jackpot {
             background: linear-gradient(90deg, #ffaa00, #ffdd88, #ffaa00);
@@ -541,9 +534,9 @@
     
     <div class="theme-bar" id="themeBar">
         <div class="theme-btn active" data-theme="forest">🌲 Лес (x1)</div>
-        <div class="theme-btn" data-theme="cyberpunk">💜 Киберпанк (x2) 🔒</div>
-        <div class="theme-btn" data-theme="space">🚀 Космос (x3) 🔒</div>
-        <div class="theme-btn" data-theme="church">⛪ Церковь (x5) 🔒</div>
+        <div class="theme-btn" data-theme="cyberpunk">💜 Киберпанк (x2)</div>
+        <div class="theme-btn" data-theme="space">🚀 Космос (x2.5) 🔒</div>
+        <div class="theme-btn" data-theme="church">⛪ Церковь (x3) 🔒</div>
     </div>
 
     <div class="top-panel">
@@ -592,102 +585,145 @@
 </div>
 
 <script>
-    // ========== МУЗЫКА ==========
-    let bgMusic = null;
-    let audioInitialized = false;
+    // ========== МУЗЫКА ДЛЯ ЛОКАЦИЙ ==========
+    let currentMusic = null;
+    let audioReady = false;
     let currentMusicVol = 30;
     let sfxVolume = 70;
     let spinSound = null;
     
-    function initAudio() {
-        if (audioInitialized) return;
+    const locationMusic = {
+        forest: 'sounds/bg_forest.mp3',
+        cyberpunk: 'sounds/Cyberpunk_location.mp3',
+        space: 'sounds/Space_location.mp3',
+        church: 'sounds/Church_location.mp3'
+    };
+    
+    function stopCurrentMusic() {
+        if (currentMusic) {
+            currentMusic.pause();
+            currentMusic.currentTime = 0;
+            currentMusic = null;
+        }
+    }
+    
+    function playMusicForLocation(location) {
+        if (!audioReady) return;
+        
+        const musicFile = locationMusic[location];
+        if (!musicFile) return;
+        
+        if (currentMusic && currentMusic.src.includes(musicFile) && !currentMusic.paused) {
+            return;
+        }
+        
+        stopCurrentMusic();
+        
         try {
-            bgMusic = new Audio('sounds/bg_forest.mp3');
-            bgMusic.loop = true;
+            currentMusic = new Audio(musicFile);
+            currentMusic.loop = true;
+            currentMusic.volume = Math.max(0, Math.min(1, currentMusicVol / 100));
+            
+            if (currentMusicVol > 0) {
+                currentMusic.play().catch(e => console.log("Music play error:", e));
+            }
+        } catch(e) {
+            console.log("Error loading music for", location, e);
+        }
+    }
+    
+    function updateMusicVolume(value) {
+        currentMusicVol = value;
+        if (currentMusic) {
+            if (value <= 1) {
+                currentMusic.muted = true;
+            } else {
+                currentMusic.muted = false;
+                currentMusic.volume = Math.max(0, Math.min(1, value / 100));
+                if (currentMusic.paused && audioReady) {
+                    currentMusic.play().catch(e => console.log("Music resume error:", e));
+                }
+            }
+        }
+        localStorage.setItem("nekoMusicVol", value);
+    }
+    
+    function initAudio() {
+        if (audioReady) return;
+        
+        try {
             spinSound = new Audio('sounds/win_slot.wav');
+            
             const savedMusic = localStorage.getItem("nekoMusicVol");
             if (savedMusic) currentMusicVol = parseInt(savedMusic);
             const savedSfx = localStorage.getItem("nekoSfxVol");
             if (savedSfx) sfxVolume = parseInt(savedSfx);
-            if (bgMusic) bgMusic.volume = Math.max(0, Math.min(1, currentMusicVol / 100));
+            
             if (spinSound) spinSound.volume = Math.max(0, Math.min(1, sfxVolume / 100));
+            
             document.getElementById("musicVol").value = currentMusicVol;
             document.getElementById("sfxVol").value = sfxVolume;
+            
             const unlock = () => {
-                if (bgMusic && currentMusicVol > 0) bgMusic.play().catch(e => console.log("Music play:", e));
-                audioInitialized = true;
+                audioReady = true;
+                playMusicForLocation(player.currentTheme);
                 document.removeEventListener('click', unlock);
                 document.removeEventListener('touchstart', unlock);
             };
             document.addEventListener('click', unlock);
             document.addEventListener('touchstart', unlock);
-        } catch(e) { console.log("Audio not supported"); audioInitialized = true; }
+        } catch(e) { 
+            console.log("Audio not supported"); 
+            audioReady = true;
+        }
     }
     
     window.playSFX = function(soundName) {
-        if (!audioInitialized) return;
+        if (!audioReady) return;
         if (soundName === 'win_slot' && spinSound && sfxVolume > 0) {
-            try { const clone = spinSound.cloneNode(); clone.volume = Math.max(0, Math.min(1, sfxVolume / 100)); clone.play().catch(e => {}); } catch(e) {}
+            try { 
+                const clone = spinSound.cloneNode(); 
+                clone.volume = Math.max(0, Math.min(1, sfxVolume / 100)); 
+                clone.play().catch(e => {}); 
+            } catch(e) {}
         }
     };
     
-    function updateMusicVolume(value) {
-        currentMusicVol = value;
-        if (bgMusic) {
-            if (value <= 1) bgMusic.muted = true;
-            else { bgMusic.muted = false; bgMusic.volume = Math.max(0, Math.min(1, value / 100)); if (bgMusic.paused && audioInitialized) bgMusic.play().catch(e => {}); }
-        }
-        localStorage.setItem("nekoMusicVol", value);
+    function updateSFXVolume(value) { 
+        sfxVolume = value; 
+        if (spinSound) spinSound.volume = Math.max(0, Math.min(1, value / 100)); 
+        localStorage.setItem("nekoSfxVol", value); 
     }
-    
-    function updateSFXVolume(value) { sfxVolume = value; if (spinSound) spinSound.volume = Math.max(0, Math.min(1, value / 100)); localStorage.setItem("nekoSfxVol", value); }
     
     // ========== НОВАЯ СИСТЕМА СЛОТОВ С БАЛАНСОМ ==========
     const FRUITS = ["🍒","🍋","🍊","🍉","🍑","🍎","🍓"];
     const STAR = "⭐";
     const JACKPOT_SYMBOL = "💎";
     
-    // Функция определения результата с балансом
     function getSpinResult() {
-        // Шансы (в сумме 100%)
-        // 40% - 2 одинаковых (возврат половины)
-        // 15% - 3 любых фрукта
-        // 8% - 3 одинаковых простых (🍒🍋🍊)
-        // 5% - 3 одинаковых средних (🍉🍑)
-        // 3% - 3 одинаковых редких (🍎🍓)
-        // 4% - легендарка (⭐⭐⭐)
-        // 0.5% - джекпот (💎💎💎)
-        // Остальное - проигрыш
-        
         const r = Math.random();
         
-        // Сначала проверяем джекпот
         if (r < 0.005) {
             return { type: "jackpot", row: [JACKPOT_SYMBOL, JACKPOT_SYMBOL, JACKPOT_SYMBOL], multiplier: 12, bonus: 100 };
         }
-        // Легендарка
         else if (r < 0.045) {
             return { type: "legend", row: [STAR, STAR, STAR], multiplier: 8, bonus: 50 };
         }
-        // 3 одинаковых редких
         else if (r < 0.075) {
             const rareFruits = ["🍎","🍓"];
             const fruit = rareFruits[Math.floor(Math.random() * rareFruits.length)];
             return { type: "win3", row: [fruit, fruit, fruit], multiplier: 6, bonus: 0 };
         }
-        // 3 одинаковых средних
         else if (r < 0.125) {
             const mediumFruits = ["🍉","🍑"];
             const fruit = mediumFruits[Math.floor(Math.random() * mediumFruits.length)];
             return { type: "win3", row: [fruit, fruit, fruit], multiplier: 4, bonus: 0 };
         }
-        // 3 одинаковых простых
         else if (r < 0.205) {
             const simpleFruits = ["🍒","🍋","🍊"];
             const fruit = simpleFruits[Math.floor(Math.random() * simpleFruits.length)];
             return { type: "win3", row: [fruit, fruit, fruit], multiplier: 2.5, bonus: 0 };
         }
-        // 3 любых фрукта (не обязательно одинаковых)
         else if (r < 0.355) {
             let row;
             do {
@@ -699,7 +735,6 @@
             } while(row[0] === row[1] && row[1] === row[2]);
             return { type: "winAny3", row: row, multiplier: 1.5, bonus: 0 };
         }
-        // 2 одинаковых (возврат половины)
         else if (r < 0.755) {
             let row;
             do {
@@ -711,7 +746,6 @@
             } while((row[0] === row[1] && row[1] === row[2]) || (row[0] !== row[1] && row[1] !== row[2] && row[0] !== row[2]));
             return { type: "twoSame", row: row, multiplier: 0.5, bonus: 0 };
         }
-        // Проигрыш
         else {
             let row;
             do {
@@ -725,45 +759,37 @@
         }
     }
     
-    // Система "Удачи" - увеличивает шансы при проигрышах
     let consecutiveLosses = 0;
     
     function getEnhancedSpinResult() {
         const money = player.money;
-        const bet = getCurrentBet();
         
-        // Режим надежды: если денег мало, повышаем шансы
         let luckBonus = 0;
         let guaranteedWin = false;
         
         if (money < 50) {
-            luckBonus = 0.3; // +30% к шансу выигрыша
+            luckBonus = 0.3;
             if (money < 20) {
                 guaranteedWin = true;
             }
         } else if (money < 100) {
-            luckBonus = 0.15; // +15% к шансу выигрыша
+            luckBonus = 0.15;
         }
         
-        // Бонус за серию проигрышей
         if (consecutiveLosses >= 5) {
             luckBonus += 0.2;
         } else if (consecutiveLosses >= 3) {
             luckBonus += 0.1;
         }
         
-        // Гарантированный выигрыш при критически малых деньгах
         if (guaranteedWin) {
-            // Даём небольшой гарантированный выигрыш
             const simpleFruits = ["🍒","🍋","🍊"];
             const fruit = simpleFruits[Math.floor(Math.random() * simpleFruits.length)];
             consecutiveLosses = 0;
             return { type: "win3", row: [fruit, fruit, fruit], multiplier: 1.5, bonus: 20 };
         }
         
-        // С вероятностью luckBonus даём улучшенный результат
         if (luckBonus > 0 && Math.random() < luckBonus) {
-            // Улучшаем результат до выигрыша
             const simpleFruits = ["🍒","🍋","🍊"];
             const fruit = simpleFruits[Math.floor(Math.random() * simpleFruits.length)];
             consecutiveLosses = 0;
@@ -962,22 +988,22 @@
             if (isPastTheme) {
                 btn.classList.add("permanently-locked");
                 btn.classList.remove("locked", "active");
-                let text = theme === "forest" ? "🌲 Лес (x1) 🔒" : theme === "cyberpunk" ? "💜 Киберпанк (x2) 🔒" : theme === "space" ? "🚀 Космос (x3) 🔒" : "⛪ Церковь (x5) 🔒";
+                let text = theme === "forest" ? "🌲 Лес (x1) 🔒" : theme === "cyberpunk" ? "💜 Киберпанк (x2) 🔒" : theme === "space" ? "🚀 Космос (x2.5) 🔒" : "⛪ Церковь (x3) 🔒";
                 btn.innerHTML = text + " ❌";
             } else if (isUnlocked && theme === player.currentTheme) {
                 btn.classList.remove("locked", "permanently-locked");
                 btn.classList.add("active");
-                let text = theme === "forest" ? "🌲 Лес (x1)" : theme === "cyberpunk" ? "💜 Киберпанк (x2)" : theme === "space" ? "🚀 Космос (x3)" : "⛪ Церковь (x5)";
+                let text = theme === "forest" ? "🌲 Лес (x1)" : theme === "cyberpunk" ? "💜 Киберпанк (x2)" : theme === "space" ? "🚀 Космос (x2.5)" : "⛪ Церковь (x3)";
                 btn.innerHTML = text;
             } else if (isUnlocked && themeIndex > currentIndex) {
                 btn.classList.remove("locked", "permanently-locked");
                 btn.classList.remove("active");
-                let text = theme === "forest" ? "🌲 Лес (x1)" : theme === "cyberpunk" ? "💜 Киберпанк (x2)" : theme === "space" ? "🚀 Космос (x3)" : "⛪ Церковь (x5)";
+                let text = theme === "forest" ? "🌲 Лес (x1)" : theme === "cyberpunk" ? "💜 Киберпанк (x2)" : theme === "space" ? "🚀 Космос (x2.5)" : "⛪ Церковь (x3)";
                 btn.innerHTML = text + " 🔓";
             } else {
                 btn.classList.add("locked");
                 btn.classList.remove("permanently-locked", "active");
-                let text = theme === "forest" ? "🌲 Лес (x1)" : theme === "cyberpunk" ? "💜 Киберпанк (x2)" : theme === "space" ? "🚀 Космос (x3)" : "⛪ Церковь (x5)";
+                let text = theme === "forest" ? "🌲 Лес (x1)" : theme === "cyberpunk" ? "💜 Киберпанк (x2)" : theme === "space" ? "🚀 Космос (x2.5)" : "⛪ Церковь (x3)";
                 btn.innerHTML = text + " 🔒";
             }
         });
@@ -1523,15 +1549,12 @@
         player.money -= CURRENT_BET;
         updateUI();
         
-        // Получаем результат с учётом системы удачи
         const result = getEnhancedSpinResult();
         let row = result.row;
         let win = 0;
         let expG = 0;
         let isJackpot = (result.type === "jackpot");
-        let isLegend = (result.type === "legend");
         
-        // Эффекты джекпота
         if (isJackpot) {
             document.querySelectorAll(".slot-cell").forEach(cell => cell.classList.add("slot-flash"));
             setTimeout(() => document.querySelectorAll(".slot-cell").forEach(cell => cell.classList.remove("slot-flash")), 600);
@@ -1764,11 +1787,18 @@
         const container = document.getElementById("bgEffects");
         if (container) { container.innerHTML = ""; if (effects[theme]) container.innerHTML = effects[theme](); }
         player.currentTheme = theme;
+        
+        playMusicForLocation(theme);
+        
         saveGame();
         checkAchievements();
         updateThemeButtonsWithLock();
-        document.getElementById("msg").innerHTML = `✨ Переход в ${theme === "forest" ? "Лес" : theme === "cyberpunk" ? "Киберпанк" : theme === "space" ? "Космос" : "Церковь"}! Множитель x${THEME_MULTIPLIERS[theme]} ✨`;
-        setTimeout(() => { if (!document.getElementById("msg").classList.contains("result-win")) { document.getElementById("msg").innerHTML = `${theme === "forest" ? "🌲 Лес" : theme === "cyberpunk" ? "💜 Киберпанк" : theme === "space" ? "🚀 Космос" : "⛪ Церковь"} • Множитель x${THEME_MULTIPLIERS[theme]}`; } }, 3000);
+        
+        const themeName = theme === "forest" ? "Лес" : theme === "cyberpunk" ? "Киберпанк" : theme === "space" ? "Космос" : "Церковь";
+        const multiplier = THEME_MULTIPLIERS[theme];
+        document.getElementById("msg").innerHTML = `✨ Переход в ${themeName}! Множитель x${multiplier} ✨`;
+        
+        setTimeout(() => { if (!document.getElementById("msg").classList.contains("result-win")) { document.getElementById("msg").innerHTML = `${themeName} • Множитель x${multiplier}`; } }, 3000);
         updateUI();
     }
     
@@ -1845,7 +1875,7 @@
                 const clickedIndex = themeOrder.indexOf(theme);
                 if (clickedIndex < currentIndex) { document.getElementById("msg").innerHTML = `🚫 НЕЛЬЗЯ ВЕРНУТЬСЯ В ПРОШЛОЕ!`; setTimeout(() => { if (!document.getElementById("msg").classList.contains("result-win")) { document.getElementById("msg").innerHTML = `🌍 Ты сейчас в ${player.currentTheme === "forest" ? "Лесу" : player.currentTheme === "cyberpunk" ? "Киберпанке" : player.currentTheme === "space" ? "Космосе" : "Церкви"}. Обратной дороги нет!`; } }, 3000); return; }
                 if (player.level >= THEME_UNLOCK[theme]) { document.querySelectorAll(".theme-btn").forEach(b => b.classList.remove("active")); btn.classList.add("active"); applyTheme(theme); }
-                else { document.getElementById("msg").innerHTML = `🔒 Локация откроется на ${THEME_UNLOCK[theme]} уровне! 🔒`; setTimeout(() => { if (!document.getElementById("msg").classList.contains("result-win")) { document.getElementById("msg").innerHTML = `🌍 Доступно: Лес (x1) | Киберпанк (x2, lvl6) | Космос (x3, lvl11) | Церковь (x5, lvl16)`; } }, 3000); }
+                else { document.getElementById("msg").innerHTML = `🔒 Локация откроется на ${THEME_UNLOCK[theme]} уровне! 🔒`; setTimeout(() => { if (!document.getElementById("msg").classList.contains("result-win")) { document.getElementById("msg").innerHTML = `🌍 Доступно: Лес (x1) | Киберпанк (x2, lvl6) | Космос (x2.5, lvl11) | Церковь (x3, lvl16)`; } }, 3000); }
             };
         });
         document.getElementById("resetBtn").onclick = resetProgress;
