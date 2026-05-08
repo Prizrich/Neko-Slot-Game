@@ -585,20 +585,75 @@
 </div>
 
 <script>
-    // ========== МУЗЫКА ДЛЯ ЛОКАЦИЙ ==========
+       // ========== МУЗЫКА ДЛЯ ЛОКАЦИЙ С ПЛАВНЫМ ПЕРЕХОДОМ ==========
     let currentMusic = null;
     let audioReady = false;
     let currentMusicVol = 30;
     let sfxVolume = 70;
     let spinSound = null;
-    
+    let isFading = false;
+
     const locationMusic = {
         forest: 'sounds/bg_forest.mp3',
         cyberpunk: 'sounds/Cyberpunk_location.mp3',
         space: 'sounds/Space_location.mp3',
         church: 'sounds/Church_location.mp3'
     };
-    
+
+    // Плавное затухание
+    function fadeOut(callback, duration = 800) {
+        if (!currentMusic || isFading) {
+            if (callback) callback();
+            return;
+        }
+        
+        isFading = true;
+        const startVolume = currentMusic.volume;
+        const startTime = performance.now();
+        
+        function step(now) {
+            const elapsed = now - startTime;
+            const progress = Math.min(1, elapsed / duration);
+            const newVolume = startVolume * (1 - progress);
+            currentMusic.volume = Math.max(0, newVolume);
+            
+            if (progress < 1) {
+                requestAnimationFrame(step);
+            } else {
+                currentMusic.pause();
+                currentMusic.currentTime = 0;
+                currentMusic.volume = startVolume;
+                isFading = false;
+                if (callback) callback();
+            }
+        }
+        
+        requestAnimationFrame(step);
+    }
+
+    // Плавное нарастание
+    function fadeIn(newAudio, duration = 800) {
+        if (!newAudio) return;
+        
+        newAudio.volume = 0;
+        newAudio.play().catch(e => console.log("Music play error:", e));
+        
+        const targetVolume = Math.max(0, Math.min(1, currentMusicVol / 100));
+        const startTime = performance.now();
+        
+        function step(now) {
+            const elapsed = now - startTime;
+            const progress = Math.min(1, elapsed / duration);
+            newAudio.volume = targetVolume * progress;
+            
+            if (progress < 1) {
+                requestAnimationFrame(step);
+            }
+        }
+        
+        requestAnimationFrame(step);
+    }
+
     function stopCurrentMusic() {
         if (currentMusic) {
             currentMusic.pause();
@@ -606,35 +661,47 @@
             currentMusic = null;
         }
     }
-    
+
     function playMusicForLocation(location) {
         if (!audioReady) return;
         
         const musicFile = locationMusic[location];
         if (!musicFile) return;
         
+        // Если уже играет та же музыка — не перезапускаем
         if (currentMusic && currentMusic.src.includes(musicFile) && !currentMusic.paused) {
             return;
         }
         
-        stopCurrentMusic();
-        
+        // Создаём новую музыку
+        let newMusic = null;
         try {
-            currentMusic = new Audio(musicFile);
-            currentMusic.loop = true;
-            currentMusic.volume = Math.max(0, Math.min(1, currentMusicVol / 100));
-            
-            if (currentMusicVol > 0) {
-                currentMusic.play().catch(e => console.log("Music play error:", e));
-            }
+            newMusic = new Audio(musicFile);
+            newMusic.loop = true;
         } catch(e) {
             console.log("Error loading music for", location, e);
+            return;
         }
+        
+        // Плавно затухаем и переключаемся
+        fadeOut(() => {
+            const oldMusic = currentMusic;
+            currentMusic = newMusic;
+            
+            // Останавливаем старую музыку полностью
+            if (oldMusic) {
+                oldMusic.pause();
+                oldMusic.src = '';
+            }
+            
+            // Запускаем новую с плавным появлением
+            fadeIn(currentMusic, 800);
+        }, 800);
     }
-    
+
     function updateMusicVolume(value) {
         currentMusicVol = value;
-        if (currentMusic) {
+        if (currentMusic && !isFading) {
             if (value <= 1) {
                 currentMusic.muted = true;
             } else {
@@ -647,7 +714,7 @@
         }
         localStorage.setItem("nekoMusicVol", value);
     }
-    
+
     function initAudio() {
         if (audioReady) return;
         
@@ -677,7 +744,7 @@
             audioReady = true;
         }
     }
-    
+
     window.playSFX = function(soundName) {
         if (!audioReady) return;
         if (soundName === 'win_slot' && spinSound && sfxVolume > 0) {
@@ -688,13 +755,13 @@
             } catch(e) {}
         }
     };
-    
+
     function updateSFXVolume(value) { 
         sfxVolume = value; 
         if (spinSound) spinSound.volume = Math.max(0, Math.min(1, value / 100)); 
         localStorage.setItem("nekoSfxVol", value); 
     }
-    
+
     // ========== НОВАЯ СИСТЕМА СЛОТОВ С БАЛАНСОМ ==========
     const FRUITS = ["🍒","🍋","🍊","🍉","🍑","🍎","🍓"];
     const STAR = "⭐";
