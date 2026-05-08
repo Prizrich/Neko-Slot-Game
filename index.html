@@ -1808,14 +1808,26 @@
         if (player.level >= 20 && !player.defeatedBoss && !inBossFight) startBossFight();
     };
     
-    function exitToMenu() {
-        if (confirm("Выйти в главное меню? Прогресс сохранится.")) {
-            saveGame();
-            document.getElementById("gameContainer").style.display = "none";
-            document.getElementById("mainMenu").style.display = "flex";
-            if (gameCompleted) { updateModifiersSelectorUI(); document.getElementById("modifiersSelector").style.display = "block"; }
+   function exitToMenu() {
+    if (confirm("Выйти в главное меню? Прогресс сохранится.")) {
+        saveGame();
+        
+        // Останавливаем музыку при выходе в меню
+        if (currentMusic) {
+            currentMusic.pause();
+            currentMusic.currentTime = 0;
+            currentMusic = null;
+        }
+        audioReady = false;
+        
+        document.getElementById("gameContainer").style.display = "none";
+        document.getElementById("mainMenu").style.display = "flex";
+        if (gameCompleted) {
+            updateModifiersSelectorUI();
+            document.getElementById("modifiersSelector").style.display = "block";
         }
     }
+}
     
     function resetProgress() {
         if (confirm("⚠️ СБРОСИТЬ ВЕСЬ ПРОГРЕСС? Всё начнётся заново!")) {
