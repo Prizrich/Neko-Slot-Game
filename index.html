@@ -78,6 +78,14 @@
             display: none;
         }
         .modifiers-selector h4 { color: #ffcc66; margin: 0 0 10px 0; }
+        .modifiers-limit-info {
+            background: rgba(0,0,0,0.6);
+            padding: 8px;
+            border-radius: 30px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            color: #ffaa44;
+        }
         .modifier-check {
             display: flex;
             align-items: center;
@@ -482,7 +490,8 @@
         <button class="menu-btn" id="settingsBtn">⚙ НАСТРОЙКИ</button>
         
         <div id="modifiersSelector" class="modifiers-selector">
-            <h4>⚙️ ВЫБЕРИ МОДИФИКАТОРЫ (до 2-х) ⚙️</h4>
+            <h4>⚙️ ВЫБЕРИ МОДИФИКАТОРЫ ⚙️</h4>
+            <div id="modifiersLimitInfo" class="modifiers-limit-info"></div>
             <div id="modifiersList"></div>
             <button id="applyModifiersBtn" class="menu-btn apply-modifiers-btn">✅ ПРИМЕНИТЬ И НАЧАТЬ ЗАНОВО</button>
         </div>
@@ -581,6 +590,40 @@
         church: 'sounds/Church_location.mp3'
     };
     
+    // ========== СИСТЕМА ПРОГРЕССИИ МОДИФИКАТОРОВ ==========
+    let globalPlaythroughCount = 0; // Количество побед над боссом за всё время
+    
+    function loadPlaythroughCount() {
+        const saved = localStorage.getItem("nekoPlaythroughCount");
+        if (saved) globalPlaythroughCount = parseInt(saved);
+        else globalPlaythroughCount = 0;
+    }
+    
+    function savePlaythroughCount() {
+        localStorage.setItem("nekoPlaythroughCount", globalPlaythroughCount);
+    }
+    
+    function getCurrentModifierLimit() {
+        if (globalPlaythroughCount >= 3) return 4;
+        if (globalPlaythroughCount >= 1) return 3;
+        return 2;
+    }
+    
+    function getNextLimitMessage() {
+        if (globalPlaythroughCount >= 3) return "🏆 МАКСИМАЛЬНЫЙ УРОВЕНЬ! Можно брать до 4 модификаторов! 🏆";
+        if (globalPlaythroughCount >= 1) return "⭐ УРОВЕНЬ 2! После следующей победы можно будет брать до 4 модификаторов! ⭐";
+        return "🌟 ПЕРВОЕ ПРОХОЖДЕНИЕ! После победы можно будет брать до 3 модификаторов! 🌟";
+    }
+    
+    function updateModifiersLimitUI() {
+        const infoDiv = document.getElementById("modifiersLimitInfo");
+        if (!infoDiv) return;
+        const limit = getCurrentModifierLimit();
+        infoDiv.innerHTML = `📊 ДОСТУПНО МОДИФИКАТОРОВ: ${limit} из ${ALL_MODIFIERS.length}<br>${getNextLimitMessage()}`;
+    }
+    
+    // ========== КОНЕЦ СИСТЕМЫ ПРОГРЕССИИ ==========
+    
     function stopCurrentMusic() {
         if (currentMusic) {
             currentMusic.pause();
@@ -595,7 +638,6 @@
         const musicFile = locationMusic[location];
         if (!musicFile) return;
         
-        // Если уже играет та же музыка — не перезапускаем
         if (currentMusic && currentMusic.src.includes(musicFile) && !currentMusic.paused) {
             return;
         }
@@ -647,10 +689,8 @@
             document.getElementById("musicVol").value = currentMusicVol;
             document.getElementById("sfxVol").value = sfxVolume;
             
-            // Разблокируем звук после первого клика пользователя
             const unlock = () => {
                 audioReady = true;
-                // Запускаем музыку для текущей локации
                 playMusicForLocation(player.currentTheme);
                 document.removeEventListener('click', unlock);
                 document.removeEventListener('touchstart', unlock);
@@ -695,6 +735,7 @@
         const container = document.getElementById("modifiersList");
         if (!container) return;
         container.innerHTML = "";
+        const limit = getCurrentModifierLimit();
         ALL_MODIFIERS.forEach(mod => {
             const div = document.createElement("div");
             div.className = "modifier-check";
@@ -702,52 +743,7 @@
             div.innerHTML = `<input type="checkbox" id="mod_${mod.id}" ${isChecked ? "checked" : ""}><label for="mod_${mod.id}"><strong>${mod.name}</strong><br><small>${mod.desc}</small></label>`;
             container.appendChild(div);
         });
-    }
-    
-    function resetGameWithModifiers() {
-        // Полная перезагрузка игры с новыми модификаторами
-        localStorage.removeItem("nekoSlotSave");
-        localStorage.removeItem("nekoAchievements");
-        
-        // Сброс всех игровых переменных
-        player = {
-            level: 1, money: 200, exp: 0, hasAmulet: false, hasCursedCoin: false, defeatedBoss: false, currentTheme: "forest",
-            legendDisabled: false, badReputation: false, smallWins: false, highRisk: false
-        };
-        spinCount = 0;
-        legendCount = 0;
-        jobCount = 0;
-        gameCompleted = true; // Модификаторы уже активны, босс считается побеждённым
-        isInJail = false;
-        inBossFight = false;
-        
-        for (let key in achievements) achievements[key].unlocked = false;
-        
-        // Применяем модификаторы к игроку
-        applyModifiersToPlayer(player);
-        
-        // Обновляем UI
-        document.body.className = "theme-forest";
-        const container = document.getElementById("bgEffects");
-        if (container) container.innerHTML = effects.forest();
-        player.currentTheme = "forest";
-        for(let i=0;i<3;i++) document.getElementById(`s${i}`).innerText = FRUITS[Math.floor(Math.random()*FRUITS.length)];
-        
-        updateUI();
-        updateAchievementsUI();
-        updateModifiersUI();
-        document.getElementById("jailPanel").style.display = "none";
-        document.getElementById("spinBtn").disabled = false;
-        document.getElementById("jobBtn").disabled = false;
-        document.getElementById("msg").innerHTML = "⚙️ НОВАЯ ИГРА С МОДИФИКАТОРАМИ! ⚙️";
-        
-        // Сохраняем игру с новыми модификаторами
-        canSave = true;
-        saveGame();
-        saveAchievements();
-        
-        // Закрываем меню модификаторов
-        document.getElementById("modifiersSelector").style.display = "none";
+        updateModifiersLimitUI();
     }
     
     function applySelectedModifiers() {
@@ -756,7 +752,12 @@
             const cb = document.getElementById(`mod_${mod.id}`);
             if (cb && cb.checked) selected.push(mod);
         });
-        if (selected.length > 2) { alert("Можно выбрать не более 2 модификаторов!"); return; }
+        
+        const limit = getCurrentModifierLimit();
+        if (selected.length > limit) { 
+            alert(`Можно выбрать не более ${limit} модификаторов! Текущий уровень позволяет брать только ${limit}. Побеждайте босса больше раз, чтобы увеличить лимит!`); 
+            return; 
+        }
         
         // Показываем подтверждение
         const confirmModal = document.getElementById("storyModal");
@@ -789,6 +790,52 @@
         document.getElementById("cancelResetBtn").onclick = () => {
             confirmModal.style.display = "none";
         };
+    }
+    
+    function resetGameWithModifiers() {
+        // Полная перезагрузка игры с новыми модификаторами
+        localStorage.removeItem("nekoSlotSave");
+        localStorage.removeItem("nekoAchievements");
+        
+        // Сброс всех игровых переменных
+        player = {
+            level: 1, money: 200, exp: 0, hasAmulet: false, hasCursedCoin: false, defeatedBoss: false, currentTheme: "forest",
+            legendDisabled: false, badReputation: false, smallWins: false, highRisk: false
+        };
+        spinCount = 0;
+        legendCount = 0;
+        jobCount = 0;
+        gameCompleted = true;
+        isInJail = false;
+        inBossFight = false;
+        
+        for (let key in achievements) achievements[key].unlocked = false;
+        
+        // Применяем модификаторы к игроку
+        applyModifiersToPlayer(player);
+        
+        // Обновляем UI
+        document.body.className = "theme-forest";
+        const container = document.getElementById("bgEffects");
+        if (container) container.innerHTML = effects.forest();
+        player.currentTheme = "forest";
+        for(let i=0;i<3;i++) document.getElementById(`s${i}`).innerText = FRUITS[Math.floor(Math.random()*FRUITS.length)];
+        
+        updateUI();
+        updateAchievementsUI();
+        updateModifiersUI();
+        document.getElementById("jailPanel").style.display = "none";
+        document.getElementById("spinBtn").disabled = false;
+        document.getElementById("jobBtn").disabled = false;
+        document.getElementById("msg").innerHTML = "⚙️ НОВАЯ ИГРА С МОДИФИКАТОРАМИ! ⚙️";
+        
+        // Сохраняем игру с новыми модификаторами
+        canSave = true;
+        saveGame();
+        saveAchievements();
+        
+        // Закрываем меню модификаторов
+        document.getElementById("modifiersSelector").style.display = "none";
     }
     
     function updateModifiersUI() {
@@ -1296,6 +1343,12 @@
     };
     
     function endBossVictory(modal, modalText) {
+        // Увеличиваем счётчик прохождений при победе над боссом (только если это первая победа в этом забеге)
+        if (!player.defeatedBoss) {
+            globalPlaythroughCount++;
+            savePlaythroughCount();
+        }
+        
         player.defeatedBoss = true;
         gameCompleted = true;
         player.money += 5000;
@@ -1308,8 +1361,11 @@
         document.getElementById("modifiersSelector").style.display = "block";
         updateModifiersUI();
         
+        const limit = getCurrentModifierLimit();
         modalText.innerHTML = `<p>✨✨✨ ПОБЕДА! +5000$ ✨✨✨</p>
-        <p>⭐ ТЕПЕРЬ ДОСТУПНЫ МОДИФИКАТОРЫ! Выбери их в главном меню. ⭐</p>
+        <p>🏆 ВСЕГО ПОБЕД НАД БОССОМ: ${globalPlaythroughCount} 🏆</p>
+        <p>⭐ ТЕПЕРЬ ДОСТУПНО МОДИФИКАТОРОВ: ${limit} из ${ALL_MODIFIERS.length} ⭐</p>
+        <p>${getNextLimitMessage()}</p>
         <button class="choice-btn" onclick="closeModal()">🏆 ПРОДОЛЖИТЬ ИГРУ 🏆</button>`;
     }
     
@@ -1664,6 +1720,8 @@
         if (confirm("⚠️ СБРОСИТЬ ВЕСЬ ПРОГРЕСС? Всё начнётся заново!")) {
             localStorage.removeItem("nekoSlotSave");
             localStorage.removeItem("nekoAchievements");
+            localStorage.removeItem("nekoPlaythroughCount");
+            globalPlaythroughCount = 0;
             player = { level:1, money:200, exp:0, hasAmulet:false, hasCursedCoin:false, defeatedBoss:false, currentTheme:"forest", legendDisabled: false, badReputation: false, smallWins: false, highRisk: false };
             spinCount = 0; legendCount = 0; jobCount = 0; activeModifiers = []; gameCompleted = false; isInJail = false;
             for (let key in achievements) achievements[key].unlocked = false;
@@ -1721,6 +1779,7 @@
         <p>• За РИСКОВЫЕ действия можно попасть в ТЮРЬМУ (залог 120$)</p>
         <p>• НОВЫЕ ЛОКАЦИИ открываются на 6, 11 и 16 уровне — АВТОМАТИЧЕСКИЙ ПЕРЕХОД!</p>
         <p>• ⚠️ ВЕРНУТЬСЯ НА СТАРУЮ ЛОКАЦИЮ НЕЛЬЗЯ! Обратной дороги нет! ⚠️</p>
+        <p>• 🏆 Каждая победа над боссом увеличивает лимит модификаторов (2→3→4)</p>
         <p>🎭 На уровнях <strong>2-18</strong> — сюжетные события!</p>
         <p>🔥 Удачи, авантюрист!</p>`;
         modalChoices.innerHTML = `<button class="choice-btn" id="prologStartBtn">🎰 ИГРАТЬ!</button>`;
@@ -1745,7 +1804,10 @@
     function toggleSettings() { const panel = document.getElementById("settingsPanel"); panel.style.display = panel.style.display === "block" ? "none" : "block"; }
     
     function init() {
+        loadPlaythroughCount();
         loadAchievements();
+        updateModifiersLimitUI();
+        
         const musicSlider = document.getElementById("musicVol");
         if (musicSlider) musicSlider.oninput = (e) => updateMusicVolume(parseInt(e.target.value));
         const sfxSlider = document.getElementById("sfxVol");
